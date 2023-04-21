@@ -1,0 +1,35 @@
+contains_speech = False
+
+#Erstellt Buffer
+buffer = io.BytesIO()
+
+#Lädt Datei
+data, samplerate = librosa.load(r'D:/Masterarbeit/SAMPLES UNPROCESSED/NOISES/pdsounds_march2009/mp3/389_2.mp3',sr=TARGET_SAMPLERATE, mono=True, dtype="float64")
+
+#Schreibt mp3 als Wav in Buffer
+sf.write(buffer, data, samplerate, format="WAV",subtype="PCM_16")
+
+#Liest Buffer als Wav
+buffer.seek(0)
+with contextlib.closing(wave.open(buffer, 'rb')) as wf:
+    
+    #Checks
+    num_channels = wf.getnchannels()
+    assert num_channels == 1
+    sample_width = wf.getsampwidth()
+    assert sample_width == 2
+    sample_rate = wf.getframerate()
+    assert sample_rate in (8000, 16000, 32000, 48000)
+    pcm_data = wf.readframes(wf.getnframes())
+
+    #Erhält Frames
+    frames = frame_generator(30, pcm_data, sample_rate)
+
+    #Checkt Frames
+    for frame in frames:
+        if vad.is_speech(frame.bytes, sample_rate):
+            print(frame.timestamp)
+            contains_speech = True
+            break
+
+buffer.close()
