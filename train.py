@@ -45,7 +45,7 @@ class SimpleVAD(pl.LightningModule):
 		out = torch.relu(self.fc2(out))
 		out = torch.relu(self.fc3(out))
 		out = torch.relu(self.fc4(out))
-		out = torch.sigmoid(self.fc5(out))
+		out = self.fc5(out)
 		return out
 
 	def configure_optimizers(self):
@@ -56,7 +56,7 @@ class SimpleVAD(pl.LightningModule):
 		_, x, y, = train_batch
 		#x = x.view(x.size(0), -1)
 		z = self.forward(x)    		
-		loss = F.binary_cross_entropy(z, y)
+		loss = F.binary_cross_entropy_with_logits(z, y.view(-1,1))
 		self.log('train_loss', loss)
 		return loss
 
@@ -64,7 +64,7 @@ class SimpleVAD(pl.LightningModule):
 		_, x, y = val_batch
 		#x = x.view(x.size(0), -1)
 		z = self.forward(x)    		
-		loss = F.binary_cross_entropy(z, y)
+		loss = F.binary_cross_entropy(z, y.view(-1,1))
 		self.log('val_loss', loss)
 		return loss
 
