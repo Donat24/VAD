@@ -1,13 +1,10 @@
-# Costume
+# Project 
 __Rumprobieren + Alt/
 LABELENV/
-
 Models/
-#=======
 data
 lightning_logs
 *.model
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
