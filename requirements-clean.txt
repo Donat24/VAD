@@ -7,3 +7,4 @@ pyloudnorm
 librosa
 huggingsound
 pytorch-lightning
+lightning

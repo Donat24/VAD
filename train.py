@@ -6,10 +6,11 @@ from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 from torchvision.datasets import MNIST
 from torchvision import transforms
-import pytorch_lightning as pl
+import lightning as L
 import pandas as pd
 from vad_dataset import LocalFileDataset, ChunkedDataset, SpeakDataset
 import ast
+
 
 SAMPLE_LENGTH = 512 # todo: this should be a parameter of the model...
 
@@ -31,7 +32,7 @@ def costume_collate_fn(batch):
     return torch.hstack(sample_list), torch.vstack(x_list), torch.hstack(y_list)
 
 
-class SimpleVAD(pl.LightningModule):
+class SimpleVAD(L.LightningModule):
 	def __init__(self):
 		super().__init__()
 		self.fc1 = nn.Linear(SAMPLE_LENGTH, 512)
@@ -99,6 +100,6 @@ dataloader_train = DataLoader(speak_train_dataset, batch_size=256, shuffle=True,
 model = SimpleVAD()
 
 # training
-trainer = pl.Trainer(precision=16, limit_train_batches=0.5)
+trainer = L.Trainer(precision=16, limit_train_batches=0.5)
 trainer.fit(model, dataloader_train)
     
