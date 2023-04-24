@@ -10,7 +10,7 @@ import lightning as L
 import pandas as pd
 from vad_dataset import LocalFileDataset, ChunkedDataset, SpeakDataset
 import ast
-
+from net1d import Net1D
 
 SAMPLE_LENGTH = 512 # todo: this should be a parameter of the model...
 
@@ -31,6 +31,48 @@ def costume_collate_fn(batch):
 
     return torch.hstack(sample_list), torch.vstack(x_list), torch.hstack(y_list)
 
+class Net1dTest(L.LightningModule):
+	def __init__(self, n_input=1, n_output=1, stride=16, n_channel=32):
+		super().__init__()
+		
+		self.net = Net1D(
+			in_channels=1,
+			base_filters=64,
+			ratio=.5,
+			filter_list = [64, 128, 128, 256, 256],
+			m_blocks_list = [2, 2, 2, 3, 3],
+			kernel_size=16,
+			stride=2,
+			groups_width=16,
+			verbose=False,
+			n_classes=1)
+
+	def forward(self, x):
+		#return x.view(-1,1)#F.log_softmax(x, dim=2)
+		x = self.net(x)
+		return x
+
+	def configure_optimizers(self):
+		optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+		return optimizer
+
+	def training_step(self, train_batch, batch_idx):
+		_, x, y, = train_batch
+		x = x.view(-1,1,512)
+		#x = x.view(x.size(0), -1)
+		z = self.forward(x)    		
+		loss = F.cross_entropy(z, y.view(-1,1))
+		self.log('train_loss', loss)
+		return loss
+
+	def validation_step(self, val_batch, batch_idx):
+		_, x, y = val_batch
+		x = x.view(-1,1,512)
+		#x = x.view(x.size(0), -1)
+		z = self.forward(x)    		
+		loss = F.cross_entropy(z, y.view(-1,1))
+		self.log('val_loss', loss)
+		return loss
 
 class SimpleVAD(L.LightningModule):
 	def __init__(self):
@@ -94,12 +136,12 @@ speak_train_dataset_unchunked = SpeakDataset(file_dataset_train)
 
 #ChunkedDataset
 speak_train_dataset = ChunkedDataset(speak_train_dataset_unchunked)
-dataloader_train = DataLoader(speak_train_dataset, batch_size=256, shuffle=True, collate_fn=costume_collate_fn, pin_memory=False, num_workers=8) 
+dataloader_train = DataLoader(speak_train_dataset, batch_size=16, shuffle=True, collate_fn=costume_collate_fn, pin_memory=False, num_workers=8) 
 
 # model
-model = SimpleVAD()
+model = Net1dTest()
 
 # training
-trainer = L.Trainer(precision=16, limit_train_batches=0.5)
+trainer = L.Trainer(precision=16, limit_train_batches=1.0)
 trainer.fit(model, dataloader_train)
     
