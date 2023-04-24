@@ -38,7 +38,7 @@ class Net1dTest(L.LightningModule):
 		self.net = Net1D(
 			in_channels=1,
 			base_filters=64,
-			ratio=.5,
+			ratio=1.0,
 			filter_list = [64, 128, 128, 256, 256],
 			m_blocks_list = [2, 2, 2, 3, 3],
 			kernel_size=16,
@@ -61,7 +61,7 @@ class Net1dTest(L.LightningModule):
 		x = x.view(-1,1,512)
 		#x = x.view(x.size(0), -1)
 		z = self.forward(x)    		
-		loss = F.cross_entropy(z, y.view(-1,1))
+		loss = F.binary_cross_entropy_with_logits(z, y.view(-1,1))
 		self.log('train_loss', loss)
 		return loss
 
@@ -70,7 +70,7 @@ class Net1dTest(L.LightningModule):
 		x = x.view(-1,1,512)
 		#x = x.view(x.size(0), -1)
 		z = self.forward(x)    		
-		loss = F.cross_entropy(z, y.view(-1,1))
+		loss = F.binary_cross_entropy_with_logits(z, y.view(-1,1))
 		self.log('val_loss', loss)
 		return loss
 
@@ -107,7 +107,7 @@ class SimpleVAD(L.LightningModule):
 		_, x, y = val_batch
 		#x = x.view(x.size(0), -1)
 		z = self.forward(x)    		
-		loss = F.binary_cross_entropy(z, y.view(-1,1))
+		loss = F.binary_cross_entropy_with_logits(z, y.view(-1,1))
 		self.log('val_loss', loss)
 		return loss
 
