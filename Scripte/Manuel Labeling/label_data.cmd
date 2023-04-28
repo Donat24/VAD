@@ -1,1 +1,0 @@
-streamlit run label_data.py
