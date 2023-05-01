@@ -41,6 +41,7 @@ class STFT(nn.Module):
             self.register_buffer("window", window)
         
         #Maximaler Negativ-Wert
+        low_treshold = torch.tensor(low_treshold,dtype=torch.float)
         self.register_buffer("low_treshold", low_treshold)
 
     def forward(self, x, normalize=True):

@@ -1,12 +1,21 @@
 import argparse
+import gc
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import TensorBoardLogger
 
 from data.data import *
 import models
 
-def train_model(model, max_steps = 800):
+def train_model(model, max_steps = 800, accelerator = "auto"):
+
+    #Clean
+    torch.cuda.empty_cache()
+    gc.collect()
+
     trainer = pl.Trainer(
+
+        #Für Debugging
+        accelerator = accelerator,
 
         #Training
         max_epochs = 1,
