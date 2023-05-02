@@ -14,7 +14,7 @@ def train_model(model, max_steps = 800, accelerator = "auto"):
 
     trainer = pl.Trainer(
 
-        #Für Debugging
+        #für Debugging
         accelerator = accelerator,
 
         #Training
