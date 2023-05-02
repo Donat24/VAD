@@ -1,7 +1,8 @@
 # Project 
 __Rumprobieren + Alt/
 LABELENV/
-data
+**/data/raw/
+**/data/train_test/
 lightning_logs
 logs
 *.model
