@@ -4,6 +4,7 @@ LABELENV/
 **/data/raw/
 **/data/train_test/
 lightning_logs
+data/
 logs
 *.model
 

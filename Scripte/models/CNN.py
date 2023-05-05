@@ -6,20 +6,21 @@ import lightning.pytorch as pl
 from .lightning_base import SimpleLightningBase
 
 class CNN(SimpleLightningBase):
-    def __init__(self) -> None:
+    def __init__(self, channels = 32) -> None:
         
         super().__init__()
-        
-        self.conv1 = nn.Conv1d(in_channels = 1, out_channels = 32, kernel_size = 160, stride = 4)
-        self.bn1   = nn.BatchNorm1d(32)
+
+            
+        self.conv1 = nn.Conv1d(in_channels = 1, out_channels = channels, kernel_size = 160, stride = 4)
+        self.bn1   = nn.BatchNorm1d(channels)
         self.pool1 = nn.MaxPool1d(4)
-        self.conv2 = nn.Conv1d(in_channels = 32, out_channels = 32, kernel_size = 4,  stride = 1)
-        self.bn2   = nn.BatchNorm1d(32)
+        self.conv2 = nn.Conv1d(in_channels = channels, out_channels = channels, kernel_size = 4,  stride = 1)
+        self.bn2   = nn.BatchNorm1d(channels)
         self.pool2 = nn.MaxPool1d(2)
-        self.conv3 = nn.Conv1d(in_channels = 32, out_channels = 32, kernel_size = 2,  stride = 1)
-        self.bn3   = nn.BatchNorm1d(32)
+        self.conv3 = nn.Conv1d(in_channels = channels, out_channels = channels, kernel_size = 2,  stride = 1)
+        self.bn3   = nn.BatchNorm1d(channels)
         self.pool3 = nn.MaxPool1d(2)
-        self.fc1   = nn.Linear(32,1)
+        self.fc1   = nn.Linear(channels,1)
     
     def forward(self, x):
         
@@ -34,5 +35,5 @@ class CNN(SimpleLightningBase):
         out = torch.avg_pool1d(out,out.size(-1)).squeeze()
 
         out = self.fc1(out)
-        out = torch.sigmoid(out)
+        #out = torch.sigmoid(out)
         return out.squeeze()

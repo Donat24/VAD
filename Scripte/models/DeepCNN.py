@@ -116,6 +116,6 @@ class DeepCNN(SimpleLightningBase):
 
         #Dense
         out = self.fc1(out)
-        out = torch.sigmoid(out)
+        #out = torch.sigmoid(out)
 
         return out.squeeze()

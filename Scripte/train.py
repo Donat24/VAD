@@ -6,7 +6,7 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from data.data import *
 import models
 
-def train_model(model, max_steps = 800, accelerator = "auto"):
+def train_model(model,max_epochs=1, max_steps = -1,limit_val_batches=1.0, accelerator = "auto"):
 
     #Clean
     torch.cuda.empty_cache()
@@ -18,13 +18,17 @@ def train_model(model, max_steps = 800, accelerator = "auto"):
         accelerator = accelerator,
 
         #Training
-        max_epochs = 1,
+        max_epochs = max_epochs,
         max_steps  = max_steps, 
+        limit_val_batches=limit_val_batches,
 
         #Logging
         logger=TensorBoardLogger("lightning_logs", name=type(model).__name__ ),
-        log_every_n_steps = 5,
-        val_check_interval = 25,
+        log_every_n_steps = 100,
+        val_check_interval = 1000,
+        precision="16-mixed",
+        gradient_clip_val=0.7
+        
     )
     trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_test)
 

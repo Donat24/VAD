@@ -10,3 +10,4 @@ pyloudnorm
 librosa
 tqdm
 tensorboard
+lion-pytorch
