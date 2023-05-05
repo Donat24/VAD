@@ -108,40 +108,34 @@ def plot_model_result(x, y, sample_length, hop_length, sr = None, x_in_sec = Tru
                 xmin = start, xmax = end, alpha = 0.05, color="red", lw=1, label = "Vorhersage")
 
 
-def plot_batch(sample_list, x, y, sample_length, hop_length, prediction=None, **kwargs):
-
-    #Pandas
-    sample_list = pd.Series(sample_list, dtype=int)
+def plot_batch(x, y, sample_length, hop_length, prediction=None, batch_dim = 0, **kwargs):
 
     #Plot Layout
     X_AXIS_PLOTS = 4
-    Y_AXIS_PLOTS = math.ceil( len(sample_list.unique()) / X_AXIS_PLOTS)
+    Y_AXIS_PLOTS = math.ceil( x.size(batch_dim) / X_AXIS_PLOTS )
     SUBPLOT_WIDTH  = 3
     SUBPLOT_HEIGHT = 1
 
     #Erzeugt neuen Plot
     fig = plt.figure(figsize = (SUBPLOT_WIDTH * X_AXIS_PLOTS, SUBPLOT_HEIGHT * Y_AXIS_PLOTS))
 
-    for counter, sample_idx in enumerate(sample_list.drop_duplicates(keep='first')):
+    for counter in range(x.size(batch_dim)):
         
         #Axis
         curr_x  = counter % X_AXIS_PLOTS
-        curr_y  = counter // Y_AXIS_PLOTS
+        curr_y  = counter // X_AXIS_PLOTS
+        
+        print(f"Erstelle Plot: X : '{curr_x}' Y : '{curr_y}'")
         curr_ax = plt.subplot2grid((Y_AXIS_PLOTS, X_AXIS_PLOTS), (curr_y, curr_x), fig=fig)
 
-        #Idx
-        idx        = sample_list[sample_list == sample_idx].index
-        first_idx  = idx.min()
-        last_idx   = idx.max()
-
         #Params for Plot
-        plot_x    = x[first_idx: last_idx + 1]
-        plot_y    = y[first_idx: last_idx + 1]
-        plot_pred = prediction[first_idx: last_idx + 1] if prediction != None else None
+        plot_x    = x[counter]
+        plot_y    = y[counter]
+        plot_pred = prediction[counter] if prediction != None else None
         
         #Subplot
         plot_model_result(plot_x, plot_y, sample_length, hop_length, prediction = plot_pred, ax = curr_ax)
-        curr_ax.set_title(f"Sample {sample_idx}")
+        curr_ax.set_title(f"Sample {counter}")
         curr_ax.set_xlabel("")
         curr_ax.set_ylabel("")
     

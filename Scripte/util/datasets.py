@@ -4,6 +4,8 @@ import os
 import pandas as pd
 from torch.utils.data import Dataset
 import tarfile
+import typing
+import math
 
 from .util import *
 
@@ -156,7 +158,7 @@ class SpeakDataset(Dataset):
 
 #Chunker
 class ChunkedDataset(Dataset):
-    def __init__(self, dataset, sample_length, hop_length, chunk_y = True) -> None:
+    def __init__(self, dataset, sample_length, hop_length, chunk_y = True, y_truth_treshold:typing.Union[float, int] = 0) -> None:
         super().__init__()
 
         #unchunked Dataset
@@ -168,6 +170,13 @@ class ChunkedDataset(Dataset):
 
         #Chunk Y
         self.chunk_y = chunk_y
+
+        #Truth Treshold
+        if isinstance(y_truth_treshold, float):
+            self.y_truth_treshold = math.floor(y_truth_treshold * self.sample_length)
+        
+        elif isinstance(y_truth_treshold, int):
+            self.y_truth_treshold = y_truth_treshold
     
     def __len__(self):
             return len(self.dataset)
@@ -184,6 +193,6 @@ class ChunkedDataset(Dataset):
         #Erzeugt y
         if self.chunk_y:
             y = get_samples(y, self.sample_length, self.hop_length)
-            y = y.sum(dim=-1).gt_(0)
+            y = y.sum(dim=-1).gt_(self.y_truth_treshold)
 
         return x, y

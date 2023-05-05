@@ -4,7 +4,7 @@ from torch import nn
 from torch.nn import functional as F
 import lightning.pytorch as pl
 
-from .lightning_base import LightningBase
+from .lightning_base import SimpleLightningBase
 from .net1d import MyConv1dPadSame, MyMaxPool1dPadSame, Swish
 
 class Block(nn.Module):
@@ -12,61 +12,70 @@ class Block(nn.Module):
         
         super().__init__()
 
-        self.bn            = nn.BatchNorm1d(in_channels)
         self.conv          = MyConv1dPadSame(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=stride)
-        self.activation_fn = activation_fn
-    
+        self.activation_fn = activation_fn                if activation_fn else None
+        self.bn            = nn.BatchNorm1d(out_channels) if bn            else None
+
     def forward(self, x):
 
         out = x
-
-        #Batchnorm
-        if self.bn:
-            out = self.bn(out)
         
+        #Conv
         out = self.conv(out)
 
         #Actiation
-        if self.activation_fn:
+        if self.activation_fn is not None:
             out = self.activation_fn(out)
+
+        #Batchnorm
+        if self.bn is not None:
+            out = self.bn(out)
 
         return out
 
-class ConvPoolConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, ratio, kernel_size) -> None:
+class ConvConvBlockWithSkip(nn.Module):
+    def __init__(self, in_channels, out_channels, ratio, kernel_size, bn = True) -> None:
         super().__init__()
         
         #Anzahl der Channels in der Mitte
         _mid_channels = in_channels * ratio
 
-        self.block_1 = Block( in_channels = in_channels,   out_channels = _mid_channels, kernel_size = kernel_size, bn=True )
-        #self.pool    = MyMaxPool1dPadSame( kernel_size = kernel_size )
-        self.block_2 = Block( in_channels = _mid_channels, out_channels = out_channels,  kernel_size = kernel_size, bn=True )
+        self.block_1 = Block( in_channels = in_channels,   out_channels = _mid_channels, kernel_size = kernel_size, bn = True  )
+        self.block_2 = Block( in_channels = _mid_channels, out_channels = out_channels,  kernel_size = kernel_size, bn = False )
+        self.bn      = nn.BatchNorm1d(out_channels) if bn else None
     
     def forward(self, x):
 
         out      = x
         identity = x
 
+        #Conv Blocks
         out = self.block_1(out)
-        #out = self.pool(out)
         out = self.block_2(out)
 
-        return out + identity
+        #Skip
+        out = out + identity
+        
+        #Batchnorm
+        if self.bn:
+            out = self.bn(out)
+
+        #Return
+        return out
 
 
-class DeepCNN(LightningBase):
+class DeepCNN(SimpleLightningBase):
     def __init__(self, first_kernel_size = 64, kernel_size = 16, mid_channels = 32, last_channels = 32, n_blocks = 4) -> None:
         
         super().__init__()
 
         #First Layer
-        self.first_cnn_layer = Block(in_channels = 1, out_channels = mid_channels, kernel_size = first_kernel_size, stride = 1, bn=False)
+        self.first_cnn_layer = Block(in_channels = 1, out_channels = mid_channels, kernel_size = first_kernel_size, stride = 1)
         
         #Blocks
         self.block_list = nn.ModuleList()
         for i in range(n_blocks):
-            self.block_list.append(ConvPoolConvBlock(
+            self.block_list.append(ConvConvBlockWithSkip(
                 in_channels  = mid_channels,
                 out_channels = mid_channels,
                 ratio        = 2,
@@ -91,20 +100,21 @@ class DeepCNN(LightningBase):
         #reshape
         out = out.unsqueeze(1)
 
-        #CNN
+        #First Layer
         out = self.first_cnn_layer(out)
         
+        #Blocks
         for block in self.block_list:
             out = block(out)
         
+        #Last Layer
         out = self.last_cnn_layer(out)
         
         #Flatten
         out = torch.avg_pool1d(out, out.size(-1))
+        out = out.squeeze()
 
         #Dense
-        out = self.bn(out)
-        out = out.squeeze()
         out = self.fc1(out)
         out = torch.sigmoid(out)
 

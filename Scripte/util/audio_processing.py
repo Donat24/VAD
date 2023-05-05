@@ -23,6 +23,45 @@ class RandomGain(nn.Module):
         
         return x
 
+#Puffert
+class AudioBuffer(nn.Module):
+    def __init__(self, size, shift) -> None:
+        
+        #Init
+        super().__init__()
+
+        #Parameter
+        self.size = size
+        self.shift  = -shift
+
+        #Puffer
+        self.buffer = None
+    
+    #Setzt Buffer zurück
+    def reset(self):
+        self.buffer = None
+
+    def forward(self, x):
+
+        #Erzeugt neuen Buffer
+        if self.buffer is None:
+            
+            #Für ungebatchte X
+            if len(x.shape) == 1:
+                x = x.unsqueeze(0)
+            
+            batch_size  = x.size(0)
+            self.buffer = torch.zeros( size=(batch_size, self.size), dtype=x.dtype, device = x.device )
+        
+        #Shifftet Buffer
+        self.buffer = self.buffer.roll(self.shift)
+
+        #Neue Daten
+        self.buffer[ : , - x.size(-1) : ] = x
+
+        #Return
+        return self.buffer
+
 #Modul welches STFT macht
 class STFT(nn.Module):
     def __init__(self, window, window_trainable = False, low_treshold = -60) -> None:

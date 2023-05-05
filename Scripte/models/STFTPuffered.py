@@ -3,17 +3,19 @@ from torch import nn
 from typing import Any
 
 from util.audio_processing import *
-from .lightning_base import SimpleLightningBase
+from .lightning_base import TimeseriesLightningBase
 from .DeepCNN import Block, DeepCNN
 
-class STFTCNN(SimpleLightningBase):
+class STFTPuffered(TimeseriesLightningBase):
     def __init__(self, first_kernel_size = 16, kernel_size = 16, mid_channels=32, last_channels=32, n_blocks = 1, dense_features = 32) -> None:
 
         #Super
         super().__init__()
 
+        self.audio_buffer = AudioBuffer(size = 8192, shift = 256)
+
         #STFT
-        self.stft = STFT( window = torch.hann_window(512), window_trainable = False , low_treshold = -60)
+        self.stft = STFT( window = torch.hann_window(8192), window_trainable = False , low_treshold = -60)
 
         #First Layer
         self.first_cnn_layer = Block( in_channels = 1, out_channels = mid_channels, kernel_size = first_kernel_size, stride = 1, bn = False)
@@ -35,10 +37,16 @@ class STFTCNN(SimpleLightningBase):
         self.bn1 = nn.BatchNorm1d(last_channels)
         self.fc2 = nn.Linear(dense_features, 1)
     
+    def reset(self):
+        self.audio_buffer.reset()
+    
     def forward(self, x):
 
         #Out
         out = x
+
+        #Audio Buffer
+        out = self.audio_buffer(out)
 
         #STFT
         out = self.stft(out)

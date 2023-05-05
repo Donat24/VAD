@@ -3,9 +3,9 @@ from torch import nn
 from torch.nn import functional as F
 import lightning.pytorch as pl
 
-from .lightning_base import LightningBase
+from .lightning_base import SimpleLightningBase
 
-class MLP(LightningBase):
+class MLP(SimpleLightningBase):
     def __init__(self, input_size) -> None:
         
         super().__init__()
