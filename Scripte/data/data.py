@@ -44,8 +44,9 @@ def get_y(tensor, sr ,info):
 
 #FileDataset
 filedataset_train              = TarDataset(r"D:/Masterarbeit/train.tar", data=train_csv, target_samplerate=SAMPLE_RATE)
-filedataset_train_fixed_length = TarDataset(r"D:/Masterarbeit/train.tar", data=train_csv, target_samplerate=SAMPLE_RATE, fixed_length = FIXED_LENGTH)
 filedataset_test               = TarDataset(r"D:/Masterarbeit/test.tar",  data=test_csv,  target_samplerate=SAMPLE_RATE)
+filedataset_train_fixed_length = TarDataset(r"D:/Masterarbeit/train.tar", data=train_csv, target_samplerate=SAMPLE_RATE, fixed_length = FIXED_LENGTH)
+filedataset_test_fixed_length  = TarDataset(r"D:/Masterarbeit/test.tar",  data=test_csv,  target_samplerate=SAMPLE_RATE, fixed_length = FIXED_LENGTH)
 
 #AudioProcessing
 audio_processing_chain = nn.Sequential(
@@ -56,7 +57,7 @@ audio_processing_chain = nn.Sequential(
 speakdataset_train_unchunked              = SpeakDataset(filedataset_train,              audio_processing_chain = None, get_y = get_y)
 speakdataset_test_unchunked               = SpeakDataset(filedataset_test,               audio_processing_chain = None, get_y = get_y)
 speakdataset_train_unchunked_fixed_length = SpeakDataset(filedataset_train_fixed_length, audio_processing_chain = None, get_y = get_y)
-speakdataset_test_unchunked_fixed_length  = SpeakDataset(filedataset_train_fixed_length, audio_processing_chain = None, get_y = get_y)
+speakdataset_test_unchunked_fixed_length  = SpeakDataset(filedataset_test_fixed_length,  audio_processing_chain = None, get_y = get_y)
 
 #ChunkedDataset
 dataset_train = ChunkedDataset(speakdataset_train_unchunked_fixed_length, SAMPLE_LENGTH, HOP_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
