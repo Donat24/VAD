@@ -13,7 +13,7 @@ class SimpleLightningBase(pl.LightningModule):
         
         #Metriken
         self.loss_fn  = F.binary_cross_entropy_with_logits
-        self.accuracy = torchmetrics.classification.BinaryAccuracy(threshold = 0)
+        self.accuracy = torchmetrics.classification.BinaryAccuracy()
     
     #Shaped Tensor der Form BATCH TIMESERIES SAMPLE zu N SAMPLE Für X und Y
     def shape_data(self, x, y):
@@ -23,8 +23,10 @@ class SimpleLightningBase(pl.LightningModule):
         
         x, y    = batch
         x, y    = self.shape_data(x, y)
+
         output  = self(x)
         loss    = self.loss_fn(output, y)
+        
         self.log("train_loss", loss)
         return loss
 
@@ -35,9 +37,11 @@ class SimpleLightningBase(pl.LightningModule):
             
             x, y    = batch
             x, y    = self.shape_data(x, y)
+            
             output  = self(x)
             loss    = self.loss_fn(output, y)
-            acc     = self.accuracy(output, y)
+            acc     = self.accuracy(torch.sigmoid(output), y)
+
             self.log("test_loss", loss)
             self.log("test_acc",  acc )
             return loss
@@ -48,9 +52,11 @@ class SimpleLightningBase(pl.LightningModule):
             
             x, y,   = batch
             x, y    = self.shape_data(x, y)
+            
             output  = self(x)
             loss    = self.loss_fn(output, y)
-            acc     = self.accuracy(output, y)
+            acc     = self.accuracy(torch.sigmoid(output), y)
+
             self.log("val_loss", loss)
             self.log("val_acc",  acc )
             return loss

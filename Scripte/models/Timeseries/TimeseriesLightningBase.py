@@ -28,7 +28,9 @@ class TimeseriesLightningBase(pl.LightningModule):
         for ts, curr_x in enumerate( x.swapaxes(0,1) ):
             output[:,ts] = self(curr_x)
         
+        #Loss
         loss = self.loss_fn(output, y)
+        
         self.log("train_loss", loss)
         return loss
 
@@ -48,7 +50,8 @@ class TimeseriesLightningBase(pl.LightningModule):
                 output[:,ts] = self(curr_x)
             
             loss    = self.loss_fn(output, y)
-            acc     = self.accuracy(output, y)
+            acc     = self.accuracy(torch.sigmoid(output), y)
+
             self.log("test_loss", loss)
             self.log("test_acc",  acc )
             return loss
@@ -68,7 +71,8 @@ class TimeseriesLightningBase(pl.LightningModule):
                 output[:,ts] = self(curr_x)
             
             loss    = self.loss_fn(output, y)
-            acc     = self.accuracy(output, y)
+            acc     = self.accuracy(torch.sigmoid(output), y)
+
             self.log("val_loss", loss)
             self.log("val_acc",  acc )
             return loss
