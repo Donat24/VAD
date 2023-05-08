@@ -11,10 +11,10 @@ from util.audio_processing import *
 
 #Konstante
 SAMPLE_RATE    = 16000
-FIXED_LENGTH   = librosa.time_to_samples(times=7, sr=SAMPLE_RATE) # Trainingsdatensätze bekommen fixe Länge
 SAMPLE_LENGTH  = 512
 HOP_LENGTH     = 256
 TRUTH_TRESHOLD = 64
+FIXED_LENGTH   = librosa.time_to_samples(times=7, sr=SAMPLE_RATE) # Trainingsdatensätze bekommen fixe Länge
 
 #Lädt CSVs
 train_csv = pd.read_csv(TRAIN_CSV_PATH)
@@ -42,10 +42,10 @@ audio_processing_chain = nn.Sequential(
 )
 
 #SpeakDataset
-speakdataset_train_unchunked              = SpeakDataset(filedataset_train,              audio_processing_chain = None, get_y = get_y)
-speakdataset_test_unchunked               = SpeakDataset(filedataset_test,               audio_processing_chain = None, get_y = get_y)
-#speakdataset_train_unchunked_fixed_length = SpeakDataset(filedataset_train_fixed_length, audio_processing_chain = None, get_y = get_y)
-#speakdataset_test_unchunked_fixed_length  = SpeakDataset(filedataset_test_fixed_length,  audio_processing_chain = None, get_y = get_y)
+speakdataset_train_unchunked              = SpeakDataset(filedataset_train,              audio_processing_chain = audio_processing_chain, get_y = get_y)
+speakdataset_test_unchunked               = SpeakDataset(filedataset_test,               audio_processing_chain = audio_processing_chain, get_y = get_y)
+#speakdataset_train_unchunked_fixed_length = SpeakDataset(filedataset_train_fixed_length, audio_processing_chain = audio_processing_chain, get_y = get_y)
+#speakdataset_test_unchunked_fixed_length  = SpeakDataset(filedataset_test_fixed_length,  audio_processing_chain = audio_processing_chain, get_y = get_y)
 
 #ChunkedDataset
 dataset_train = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)

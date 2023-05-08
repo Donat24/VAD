@@ -23,6 +23,6 @@ class MLP(SimpleLightningBase):
         out = torch.relu(self.fc2(out))
         out = torch.relu(self.fc3(out))
         out = torch.relu(self.fc4(out))
-        out = torch.sigmoid(self.fc5(out))
+        #out = torch.sigmoid(self.fc5(out))
 
         return out.view(out.shape[0])

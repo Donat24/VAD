@@ -66,7 +66,7 @@ class STFTCNN(SimpleLightningBase):
         out = self.bn1(out)
         
         out = self.fc2(out)
-        out = torch.sigmoid(out)
+        #out = torch.sigmoid(out)
         out = out.squeeze()
         
         return out
