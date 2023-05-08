@@ -6,6 +6,9 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from data.data import *
 import models
 
+#Torch Matmul
+torch.set_float32_matmul_precision('high')
+
 def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accelerator = "auto"):
 
     #Clean
