@@ -16,10 +16,6 @@ SAMPLE_LENGTH  = 512
 HOP_LENGTH     = 256
 TRUTH_TRESHOLD = 64
 
-
-#Fixt relative Pfade
-__current_dir = "/mnt/data/source_jonas/Samples/"#os.path.dirname(os.path.abspath(__file__))
-
 #Lädt CSVs
 train_csv = pd.read_csv(TRAIN_CSV_PATH)
 test_csv  = pd.read_csv(TEST_CSV_PATH)
