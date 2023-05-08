@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 import lightning.pytorch as pl
 
-from .lightning_base import SimpleLightningBase
+from .SimpleLightningBase import SimpleLightningBase
 
 class CNN(SimpleLightningBase):
     def __init__(self, channels = 32) -> None:

@@ -3,7 +3,7 @@ from torch import nn
 from typing import Any
 
 from util.audio_processing import *
-from .lightning_base import SimpleLightningBase
+from .SimpleLightningBase import SimpleLightningBase
 from .DeepCNN import Block, DeepCNN
 
 class STFTCNN(SimpleLightningBase):

@@ -4,18 +4,10 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
-
-try:
     
-    #Für das Script
-    from ..util.datasets import *
-    from ..util.audio_processing import *
-
-except ImportError as e:
-    
-    #Für Hauptverzeichniss
-    from util.datasets import *
-    from util.audio_processing import *
+from .paths_config import *
+from util.datasets import *
+from util.audio_processing import *
 
 #Konstante
 SAMPLE_RATE    = 16000
@@ -29,8 +21,8 @@ TRUTH_TRESHOLD = 64
 __current_dir = "/mnt/data/source_jonas/Samples/"#os.path.dirname(os.path.abspath(__file__))
 
 #Lädt CSVs
-train_csv = pd.read_csv(os.path.join(__current_dir, "train.csv"))
-test_csv  = pd.read_csv(os.path.join(__current_dir, "test.csv"))
+train_csv = pd.read_csv(TRAIN_CSV_PATH)
+test_csv  = pd.read_csv(TEST_CSV_PATH)
 
 #Fixt Spalte mit AST
 train_csv["voice"] = train_csv["voice"].apply(ast.literal_eval)
@@ -43,10 +35,10 @@ def get_y(tensor, sr ,info):
     return out
 
 #FileDataset
-filedataset_train              = TarDataset(os.path.join(__current_dir,"train.tar"), data=train_csv, target_samplerate=SAMPLE_RATE)
-filedataset_test               = TarDataset(os.path.join(__current_dir,"test.tar"), data=train_csv, target_samplerate=SAMPLE_RATE)
-filedataset_train_fixed_length = TarDataset(os.path.join(__current_dir,"train.tar"), data=train_csv, target_samplerate=SAMPLE_RATE, fixed_length = FIXED_LENGTH)
-filedataset_test               = TarDataset(os.path.join(__current_dir,"test.tar"),  data=test_csv,  target_samplerate=SAMPLE_RATE)
+filedataset_train              = TarDataset(TRAIN_TAR_PATH, data=train_csv, target_samplerate=SAMPLE_RATE)
+filedataset_test               = TarDataset(TEST_TAR_PATH,  data=train_csv, target_samplerate=SAMPLE_RATE)
+#filedataset_train_fixed_length = TarDataset(TRAIN_TAR_PATH, data=train_csv, target_samplerate=SAMPLE_RATE, fixed_length = FIXED_LENGTH)
+#filedataset_test_fixed_length  = TarDataset(TEST_TAR_PATH,  data=test_csv,  target_samplerate=SAMPLE_RATE)
 
 #AudioProcessing
 audio_processing_chain = nn.Sequential(
@@ -56,13 +48,32 @@ audio_processing_chain = nn.Sequential(
 #SpeakDataset
 speakdataset_train_unchunked              = SpeakDataset(filedataset_train,              audio_processing_chain = None, get_y = get_y)
 speakdataset_test_unchunked               = SpeakDataset(filedataset_test,               audio_processing_chain = None, get_y = get_y)
-speakdataset_train_unchunked_fixed_length = SpeakDataset(filedataset_train_fixed_length, audio_processing_chain = None, get_y = get_y)
-speakdataset_test_unchunked_fixed_length  = SpeakDataset(filedataset_test_fixed_length,  audio_processing_chain = None, get_y = get_y)
+#speakdataset_train_unchunked_fixed_length = SpeakDataset(filedataset_train_fixed_length, audio_processing_chain = None, get_y = get_y)
+#speakdataset_test_unchunked_fixed_length  = SpeakDataset(filedataset_test_fixed_length,  audio_processing_chain = None, get_y = get_y)
 
 #ChunkedDataset
-dataset_train = ChunkedDataset(speakdataset_train_unchunked_fixed_length, SAMPLE_LENGTH, HOP_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
-dataset_test  = ChunkedDataset(speakdataset_test_unchunked_fixed_length,  SAMPLE_LENGTH, HOP_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+dataset_train = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+dataset_test  = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+
+#Costume Collate
+def costume_collate_fn(batch):
+
+    x_list = []
+    y_list = []
+
+    #Iter
+    for x, y in batch:
+        x_list.append(x)
+        y_list.append(y)
+
+    #Padding
+    x = torch.nn.utils.rnn.pad_sequence(sequences = x_list, batch_first=True, padding_value=0)
+
+    #Stack Y
+    y = torch.nn.utils.rnn.pad_sequence(sequences = y_list, batch_first=True, padding_value=0)
+
+    return x, y
 
 #Dataloader für Training
-dataloader_train = DataLoader(dataset_train, batch_size=4, shuffle=True, collate_fn=costume_collate_fn, pin_memory=False, num_workers=4)
-dataloader_test  = DataLoader(dataset_test,  batch_size=8, shuffle=False, collate_fn=costume_collate_fn, pin_memory=False, num_workers=4)
+dataloader_train = DataLoader(dataset_train, batch_size=4, shuffle=True,  collate_fn=costume_collate_fn, pin_memory=False, num_workers=4)
+dataloader_test  = DataLoader(dataset_test,  batch_size=4, shuffle=False, collate_fn=costume_collate_fn, pin_memory=False, num_workers=4)

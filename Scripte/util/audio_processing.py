@@ -31,8 +31,8 @@ class AudioBuffer(nn.Module):
         super().__init__()
 
         #Parameter
-        self.size = size
-        self.shift  = -shift
+        self.size  = size
+        self.shift = -shift
 
         #Puffer
         self.buffer = None
@@ -45,19 +45,15 @@ class AudioBuffer(nn.Module):
 
         #Erzeugt neuen Buffer
         if self.buffer is None:
-            
-            #Für ungebatchte X
-            if len(x.shape) == 1:
-                x = x.unsqueeze(0)
-            
-            batch_size  = x.size(0)
-            self.buffer = torch.zeros( size=(batch_size, self.size), dtype=x.dtype, device = x.device )
+            _size     = list(x.size())
+            _size[-1] = self.size
+            self.buffer = torch.zeros(size = tuple(_size), dtype = x.dtype)
         
         #Shifftet Buffer
-        self.buffer = self.buffer.roll(self.shift)
+        self.buffer = torch.roll(input = self.buffer, shifts = self.shift)
 
         #Neue Daten
-        self.buffer[ : , - x.size(-1) : ] = x
+        self.buffer[..., - x.size(-1) : ] = x
 
         #Return
         return self.buffer

@@ -4,7 +4,7 @@ from torch import nn
 from torch.nn import functional as F
 import lightning.pytorch as pl
 
-from .lightning_base import SimpleLightningBase
+from .SimpleLightningBase import SimpleLightningBase
 from .net1d import MyConv1dPadSame, MyMaxPool1dPadSame, Swish
 
 class Block(nn.Module):

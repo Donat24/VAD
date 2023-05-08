@@ -3,8 +3,8 @@ from torch import nn
 from typing import Any
 
 from util.audio_processing import *
-from .lightning_base import TimeseriesLightningBase
-from .DeepCNN import Block, DeepCNN
+from models.Simple.DeepCNN import Block, DeepCNN
+from .TimeseriesLightningBase import TimeseriesLightningBase
 
 class STFTPuffered(TimeseriesLightningBase):
     def __init__(self, first_kernel_size = 16, kernel_size = 16, mid_channels=32, last_channels=32, n_blocks = 1, dense_features = 32) -> None:
