@@ -158,7 +158,7 @@ class SpeakDataset(Dataset):
 
 #Chunker
 class ChunkedDataset(Dataset):
-    def __init__(self, dataset, sample_length, hop_length, chunk_y = True, y_truth_treshold:typing.Union[float, int] = 0) -> None:
+    def __init__(self, dataset, sample_length, hop_length, fill_x_to_sample_length = True, fill_y_to_sample_length = True, chunk_y = True, y_truth_treshold:typing.Union[float, int] = 0) -> None:
         super().__init__()
 
         #unchunked Dataset
@@ -167,6 +167,10 @@ class ChunkedDataset(Dataset):
         #Chunker Parameter
         self.sample_length = sample_length
         self.hop_length    = hop_length
+
+        #Dateigröße auf vollen Chunk anpassen
+        self.fill_x_to_sample_length = fill_x_to_sample_length
+        self.fill_y_to_sample_length = fill_y_to_sample_length
 
         #Chunk Y
         self.chunk_y = chunk_y
@@ -187,6 +191,25 @@ class ChunkedDataset(Dataset):
         #Lädt x, y für 
         x, y = self.dataset[idx]
 
+        #Füllt Sample Länge auf
+        if self.fill_x_to_sample_length or self.fill_y_to_sample_length:
+            
+            #Errechnet
+            _overflow = (x.size(-1) - self.sample_length) % self.hop_length
+            
+            if _overflow:
+                
+                #Erzeugt 0en zum Auffüllen
+                _length_zeros = self.hop_length - _overflow
+                zeros = torch.zeros(size = (_length_zeros,))
+
+                #Füllt X und Y auf
+                if self.fill_x_to_sample_length:
+                    x = torch.concat([x, zeros])
+
+                if self.fill_y_to_sample_length:
+                    y = torch.concat([y, zeros])
+        
         #Erzeugt X
         x = get_samples(x, self.sample_length, self.hop_length)
 

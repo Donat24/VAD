@@ -1,8 +1,7 @@
 # Project 
 __Rumprobieren + Alt/
 LABELENV/
-**/data/raw/
-**/data/train_test/
+**/data/paths_config.py
 lightning_logs
 data/
 logs

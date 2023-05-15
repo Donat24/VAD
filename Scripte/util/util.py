@@ -38,31 +38,30 @@ def get_samples(waveform, sample_length, hop_length):
     return waveform.unfold(0, size = sample_length, step = hop_length)
 
 #Wandelt einzelne Samples wieder in eine Waveform zurück
-def reverse_unfold(tensor, sample_length, hop_length):
+def reverse_unfold(tensor, hop_length):
     
     #Sichert das der Übergebense Tensor die Form[Datenpunkt]
     if len(tensor.shape) != 2:
         raise Exception("BAD TENSOR SHAPE")
     
-    #liest variable aus
-    rows                 = tensor.size(0)
-    cols                 = tensor.size(1)
-    tensor_sample_length = (rows - 1) * hop_length + sample_length
+    #Letztes Frame wird ganz verwendet, alle Anderen nur bis zur Hop-Length 
+    last_frame       = tensor[-1]
+    all_other_frames = tensor[ : -1][..., : hop_length].flatten()
 
-    #Erzeugt padding zwischen den Einträgen, flattet den Tensor und sorgt so für einen Versatz
-    pad      = tensor_sample_length - cols + hop_length
-    reversed = F.pad(tensor, (0, pad), "constant", value=0)
-    reversed = reversed.flatten()[:rows * tensor_sample_length].reshape(rows, tensor_sample_length)
-    reversed = reversed.sum(0)
+    #Verbindet Frames
+    return torch.concat([last_frame, all_other_frames])
 
-    #Summe von reversed muss durch Anzahl der Elemente geteilt werden
-    num_entries = torch.ones_like(tensor,dtype=torch.float)
-    num_entries = F.pad(num_entries, (0, pad), "constant", value=0)
-    num_entries = num_entries.flatten()[:rows * tensor_sample_length].reshape(rows, tensor_sample_length)
-    num_entries = num_entries.sum(0)
-
-    #Erzeugt Samples
-    return torch.div(reversed, num_entries)
+def y_to_full_length(tensor, sample_length, hop_length):
+    
+    #Sichert das der Übergebense Tensor die Form[Datenpunkt]
+    if len(tensor.shape) != 1:
+        raise Exception("BAD TENSOR SHAPE")
+    
+    #Skaliert Y auf Länge
+    tensor = tensor.unsqueeze(-1).repeat( 1, sample_length )
+    
+    #Returned
+    return reverse_unfold(tensor, hop_length)
 
 #Liefert zusammenhängende Parts zurück
 #TODO: PERFORMANTER MACHEN (ist für Plots aber egal)

@@ -1,5 +1,7 @@
 import argparse
 import gc
+import torchmetrics
+import tqdm
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import TensorBoardLogger
 
@@ -34,6 +36,25 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
         
     )
     trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_test)
+
+def test_model(model):
+
+    #Eval
+    model.eval()
+
+    #Test Result
+    model.clear_test_result()
+
+    #pytorch Lighning
+    trainer = pl.Trainer()
+    trainer.test(model, dataloader_test)
+
+    #Test Result
+    result = model.get_test_result()
+    result.sort( key=lambda item: item["acc"])
+
+    #Return
+    return result
 
 def main():
 

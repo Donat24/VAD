@@ -5,6 +5,9 @@ import torchmetrics
 import lightning.pytorch as pl
 from lion_pytorch import Lion
 
+from data.data import HOP_LENGTH
+
+
 #Für einfache Netzte ohne Puffer
 class SimpleLightningBase(pl.LightningModule):
     def __init__(self) -> None:        
@@ -12,8 +15,11 @@ class SimpleLightningBase(pl.LightningModule):
         super().__init__()        
         
         #Metriken
-        self.loss_fn  = F.binary_cross_entropy_with_logits
-        self.accuracy = torchmetrics.classification.BinaryAccuracy()
+        self.loss_fn         = F.binary_cross_entropy_with_logits
+        self.accuracy        = torchmetrics.classification.BinaryAccuracy()
+
+        #Für Test per Batch
+        self.clear_test_result()
     
     #Shaped Tensor der Form BATCH TIMESERIES SAMPLE zu N SAMPLE Für X und Y
     def shape_data(self, x, y):
@@ -30,7 +36,27 @@ class SimpleLightningBase(pl.LightningModule):
         self.log("train_loss", loss)
         return loss
 
+    #Für Test
+    def clear_test_result(self):
+        self.test_results = []
     
+    #Returned Result
+    def get_test_result(self):
+        return self.test_results
+    
+    #Erzeugt Tensor der wie Y aussieht
+    def forward_whole_file(self,x):
+        output  = self(x)
+
+        #Transform Shape
+        transformed = output.unsqueeze(-1).repeat( 1, x.size(-1) )
+        last        = transformed[-1]
+        all_other   = transformed[ : -1][..., : HOP_LENGTH].flatten()
+        output      = torch.concat([all_other, last])
+
+        #Return
+        return output
+
     def test_step(self, batch, batch_idx):
         
         with torch.no_grad():
@@ -38,13 +64,15 @@ class SimpleLightningBase(pl.LightningModule):
             x, y    = batch
             x, y    = self.shape_data(x, y)
             
-            output  = self(x)
-            loss    = self.loss_fn(output, y)
-            acc     = self.accuracy(torch.sigmoid(output), y)
+            #Forward
+            output  = self.forward_whole_file(x)
+            
+            #Accuracy
+            acc = self.accuracy( torch.sigmoid(output), y)
+            self.log("test_acc",  acc)
+            self.test_results.append({"batch_idx" : batch_idx, "acc" : acc.item()})
 
-            self.log("test_loss", loss)
-            self.log("test_acc",  acc )
-            return loss
+            return acc
     
     def validation_step(self, batch, batch_idx):
         

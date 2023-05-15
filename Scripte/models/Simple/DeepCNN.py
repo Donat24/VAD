@@ -98,7 +98,7 @@ class DeepCNN(SimpleLightningBase):
         out = x
 
         #reshape
-        out = out.unsqueeze(1)
+        out = out.unsqueeze(-2)
 
         #First Layer
         out = self.first_cnn_layer(out)

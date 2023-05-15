@@ -26,7 +26,7 @@ class TimeseriesLightningBase(pl.LightningModule):
         
         #Iterriert über File
         for ts, curr_x in enumerate( x.swapaxes(0,1) ):
-            output[:,ts] = self(curr_x)
+            output[...,ts] = self(curr_x)
         
         #Loss
         loss = self.loss_fn(output, y)
@@ -47,7 +47,7 @@ class TimeseriesLightningBase(pl.LightningModule):
             
             #Iterriert über File
             for ts, curr_x in enumerate( x.swapaxes(0,1) ):
-                output[:,ts] = self(curr_x)
+                output[...,ts] = self(curr_x)
             
             loss    = self.loss_fn(output, y)
             acc     = self.accuracy(torch.sigmoid(output), y)
@@ -68,7 +68,7 @@ class TimeseriesLightningBase(pl.LightningModule):
             
             #Iterriert über File
             for ts, curr_x in enumerate( x.swapaxes(0,1) ):
-                output[:,ts] = self(curr_x)
+                output[...,ts] = self(curr_x)
             
             loss    = self.loss_fn(output, y)
             acc     = self.accuracy(torch.sigmoid(output), y)

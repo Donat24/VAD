@@ -25,13 +25,13 @@ class CNN(SimpleLightningBase):
     def forward(self, x):
         
         #reshape
-        x = x.unsqueeze(1)
+        out = x.unsqueeze(-2)
 
         #forward
-        out = self.pool1(torch.relu(self.bn1(self.conv1(x))))
+        out = self.pool1(torch.relu(self.bn1(self.conv1(out))))
         out = self.pool2(torch.relu(self.bn2(self.conv2(out))))
         out = self.pool3(torch.relu(self.bn3(self.conv3(out))))
-        
+
         out = torch.avg_pool1d(out,out.size(-1)).squeeze()
 
         out = self.fc1(out)
