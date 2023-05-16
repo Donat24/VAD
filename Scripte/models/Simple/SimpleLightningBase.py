@@ -30,6 +30,7 @@ class SimpleLightningBase(pl.LightningModule):
         x, y    = batch
         x, y    = self.shape_data(x, y)
 
+        #Forward
         output  = self(x)
         loss    = self.loss_fn(output, y)
         

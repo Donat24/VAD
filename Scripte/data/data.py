@@ -14,8 +14,7 @@ from util.audio_processing import *
 SAMPLE_RATE    = 16000
 SAMPLE_LENGTH  = 512
 HOP_LENGTH     = 256
-CONTEXT_LENGTH = 0
-#2048 - SAMPLE_LENGTH
+CONTEXT_LENGTH = 0 #2048 - SAMPLE_LENGTH
 TRUTH_TRESHOLD = 64
 FIXED_LENGTH   = librosa.time_to_samples(times=7, sr=SAMPLE_RATE) # Trainingsdatensätze bekommen fixe Länge
 
@@ -48,7 +47,7 @@ speakdataset_test_unchunked               = SpeakDataset(filedataset_test,      
 
 #ChunkedDataset
 dataset_train = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
-dataset_val   = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+dataset_val   = ChunkedDataset(speakdataset_test_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
 dataset_test  = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False)
 
 #Costume Collate

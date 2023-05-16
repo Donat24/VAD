@@ -11,11 +11,16 @@ import models
 #Torch Matmul
 torch.set_float32_matmul_precision('high')
 
-def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accelerator = "auto"):
+def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accelerator = "auto", name_params = None):
 
     #Clean
     torch.cuda.empty_cache()
     gc.collect()
+
+    #Model Name
+    name = str( type(model).__name__ )
+    if name_params:
+        name =  name + "_" + "_".join(f"{key}-{value}" for key, value in name_params.items())
 
     trainer = pl.Trainer(
 
@@ -27,7 +32,7 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
         max_steps  = max_steps,
 
         #Logging
-        logger=TensorBoardLogger("lightning_logs", name=type(model).__name__ ),
+        logger=TensorBoardLogger("lightning_logs", name=name ),
         log_every_n_steps  = 100,
         val_check_interval = 1000,
         limit_val_batches  = limit_val_batches,
@@ -35,7 +40,7 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
         gradient_clip_val  = 0.7
         
     )
-    trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_test)
+    trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_val)
 
 def test_model(model):
 
