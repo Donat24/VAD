@@ -81,7 +81,7 @@ def plot_waveform_with_voice(waveform, voice, sr = None, x_in_sec = True, ax = N
         ax.axvspan( xmin = start, xmax = end, alpha = alpha_voice, color="green", label="Sprache")
     
 
-def plot_model_prediction(x, y, sample_length, hop_length, sr = None, x_in_sec = True, prediction = None, ax = None, **kwargs):
+def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, sr = None, x_in_sec = True, prediction = None, ax = None, **kwargs):
 
     #Fixt x_in_sec
     if sr is None:
@@ -98,6 +98,10 @@ def plot_model_prediction(x, y, sample_length, hop_length, sr = None, x_in_sec =
         waveform = reverse_unfold(x, hop_length)
     else:
         raise Exception("BAD TENSOR SHAPE")
+    
+    #Fixt context_length
+    if context_length:
+        waveform = waveform[context_length:]
     
     #Y für Plot
     if y.size(-1) < waveform.size(-1):
@@ -123,12 +127,12 @@ def plot_model_prediction(x, y, sample_length, hop_length, sr = None, x_in_sec =
                 end   = librosa.samples_to_time(end,   sr=sr)
         
             ax.axvspan(
-                xmin = start, xmax = end, alpha = 0.05, color="red", lw=1, label = "Vorhersage")
+                xmin = start, xmax = end, alpha = 0.2, color="red", lw=1, label = "Vorhersage")
 
 
 def plot_batch(
         #Data
-        x, y, sample_length, hop_length, prediction=None, sample_idx = None,
+        x, y, sample_length, hop_length, context_length = 0, prediction = None, sample_idx = None,
         
         #Layout
         x_axis_plots = 4, subplot_width = 3, subplot_height = 1,
@@ -138,11 +142,12 @@ def plot_batch(
     ):
 
     #Batch IDX
+    _x_size = x.size(0) if hasattr(x,"size") else len(x)
     if sample_idx is not None:
-        if len(sample_idx) != x.size(0):
+        if len(sample_idx) != _x_size:
             raise Exception("BAD SIZE OF SAMPLE_IDX")
     else:
-        sample_idx = range(x.size(0))
+        sample_idx = range(_x_size)
 
     
     #Plot Layout
@@ -166,7 +171,7 @@ def plot_batch(
         plot_pred = prediction[counter] if prediction != None else None
         
         #Subplot
-        plot_model_prediction(plot_x, plot_y, sample_length, hop_length, prediction = plot_pred, ax = curr_ax)
+        plot_model_prediction(plot_x, plot_y, sample_length, hop_length, context_length = context_length, prediction = plot_pred, ax = curr_ax)
         curr_ax.set_title(f"Sample {idx}")
         curr_ax.set_xlabel("")
         curr_ax.set_ylabel("")
@@ -185,25 +190,28 @@ def plot_model(
     **kwargs
     ):
 
-    #Plot Layout
-    y_axis_plots = math.ceil( len(sample_idx) / x_axis_plots )
+    x_list = []
+    y_list = []
+    pred_list = []
 
-    #Erzeugt neuen Plot
-    fig = plt.figure(figsize = (subplot_width * x_axis_plots, subplot_height * y_axis_plots))
-
-
-    for counter, idx in enumerate(sample_idx):
-
-        #Axis
-        curr_x  = counter % x_axis_plots
-        curr_y  = counter // x_axis_plots
-
-        print(f"Erstelle Plot: IDX : '{idx}' | X : '{curr_x}' | Y : '{curr_y}'")
-        curr_ax = plt.subplot2grid((y_axis_plots, x_axis_plots), (curr_y, curr_x), fig=fig)
+    #Lädt Samples
+    for idx in sample_idx:
 
         #Load Data
-        x,y = dataset[idx]
-        output = model(x)
+        x, y   = dataset[idx]
+        pred = model(x)
+
+        #Fügt Daten an
+        x_list.append(x)
+        y_list.append(y)
+        pred_list.append(pred)
+    
+    #Plots Batch with Model Results
+    return plot_batch(
+        x_list, y_list, prediction = pred_list, sample_idx = sample_idx,
+        sample_length = dataset.sample_length, hop_length = dataset.hop_length, context_length = dataset.context_length,
+        x_axis_plots=x_axis_plots, subplot_width=subplot_width, subplot_height=subplot_height
+    )
 
 
 def plot_spectorgram(waveform, sr, sample_length, hop_length):
