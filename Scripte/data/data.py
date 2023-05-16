@@ -21,14 +21,10 @@ FIXED_LENGTH   = librosa.time_to_samples(times=7, sr=SAMPLE_RATE) # Trainingsdat
 train_csv = pd.read_csv(TRAIN_CSV_PATH)
 test_csv  = pd.read_csv(TEST_CSV_PATH)
 
-#Fixt Spalte mit AST
-train_csv["voice"] = train_csv["voice"].apply(ast.literal_eval)
-test_csv["voice"]  = test_csv["voice"].apply(ast.literal_eval)
-
 #Erstellt Y-Tensor
 def get_y(tensor, sr ,info):
     out = torch.zeros_like(tensor)
-    out[info["voice"][0] : info["voice"][1] + 1] = 1
+    out[info["start"] : info["end"] + 1] = 1
     return out
 
 #FileDataset
