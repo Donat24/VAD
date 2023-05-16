@@ -1,9 +1,8 @@
 # Project 
 __Rumprobieren + Alt/
 LABELENV/
-**/data/paths_config.py
+paths_config.py
 lightning_logs
-data/
 logs
 *.model
 
