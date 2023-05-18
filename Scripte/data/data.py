@@ -47,7 +47,7 @@ speakdataset_test_unchunked               = SpeakDataset(filedataset_test,      
 
 #ChunkedDataset
 dataset_train = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
-dataset_val   = ChunkedDataset(speakdataset_test_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+dataset_val   = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
 dataset_test  = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False)
 
 #Costume Collate

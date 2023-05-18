@@ -181,7 +181,7 @@ def plot_batch(
 
 def plot_model(
     #Data
-    sample_idx, dataset, model,
+    sample_idx, dataset, model_predict_func,
 
     #Fügt Verlängerung für Pred ein
     decay = librosa.time_to_samples(times = 0.3, sr = 16000),
@@ -198,16 +198,17 @@ def plot_model(
     pred_list = []
 
     #Lädt Samples
-    for idx in sample_idx:
+    with torch.no_grad():
+        for idx in sample_idx:
 
-        #Load Data
-        x, y   = dataset[idx]
-        pred = model(x)
+            #Load Data
+            x, y = dataset[idx]
+            pred = model_predict_func(x)
 
-        #Fügt Daten an
-        x_list.append(x)
-        y_list.append(y)
-        pred_list.append(pred)
+            #Fügt Daten an
+            x_list.append(x)
+            y_list.append(y)
+            pred_list.append(pred)
     
     #Plots Batch with Model Results
     return plot_batch(
