@@ -65,7 +65,7 @@ def y_to_full_length(tensor, sample_length, hop_length):
 
 #Liefert zusammenhängende Parts zurück
 #TODO: PERFORMANTER MACHEN (ist für Plots aber egal)
-def get_parts(tensor, treshhold = 0):
+def get_parts(tensor, treshold = 0):
 
     #Für Return
     parts = []
@@ -75,7 +75,7 @@ def get_parts(tensor, treshhold = 0):
     end   = 0
     searching = False
     
-    for idx, value in enumerate(tensor > treshhold):
+    for idx, value in enumerate(tensor > treshold):
         
         #Sucht nach neuem Part
         if value:
@@ -97,3 +97,22 @@ def get_parts(tensor, treshhold = 0):
         parts.append((start, end))
     
     return parts
+
+#Liefert zusammenhängende Parts mit Buffer am Ende
+def get_parts_with_buffer(tensor, treshold = 0, decay = librosa.time_to_samples(times = 0.3, sr = 16000)):
+    
+    #Falls decay wird neuer Tensor erzeugt
+    if decay:
+
+        #out
+        out = torch.zeros_like(tensor)
+        
+        #iterriert parts
+        for start, end in get_parts(tensor, treshold):
+            out[start: end + decay] = True
+    
+    #Sonst einfach input verwenden
+    else:
+        out = tensor
+    
+    return get_parts(out, treshold)

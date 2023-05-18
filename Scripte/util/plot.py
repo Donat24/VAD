@@ -81,7 +81,7 @@ def plot_waveform_with_voice(waveform, voice, sr = None, x_in_sec = True, ax = N
         ax.axvspan( xmin = start, xmax = end, alpha = alpha_voice, color="green", label="Sprache")
     
 
-def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, sr = None, x_in_sec = True, prediction = None, ax = None, **kwargs):
+def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, sr = None, x_in_sec = True, prediction = None, decay = librosa.time_to_samples(times = 0.3, sr = 16000), ax = None, **kwargs):
 
     #Fixt x_in_sec
     if sr is None:
@@ -120,7 +120,7 @@ def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, s
             prediction = y_to_full_length(prediction, sample_length, hop_length)
 
         #Erstellt Parts
-        for start, end in get_parts( prediction ):
+        for start, end in get_parts_with_buffer( prediction, decay = decay):
             
             if x_in_sec:
                 start = librosa.samples_to_time(start, sr=sr)
@@ -132,7 +132,7 @@ def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, s
 
 def plot_batch(
         #Data
-        x, y, sample_length, hop_length, context_length = 0, prediction = None, sample_idx = None,
+        x, y, sample_length, hop_length, context_length = 0, prediction = None, decay = librosa.time_to_samples(times = 0.3, sr = 16000), sample_idx = None,
         
         #Layout
         x_axis_plots = 4, subplot_width = 3, subplot_height = 1,
@@ -171,7 +171,7 @@ def plot_batch(
         plot_pred = prediction[counter] if prediction != None else None
         
         #Subplot
-        plot_model_prediction(plot_x, plot_y, sample_length, hop_length, context_length = context_length, prediction = plot_pred, ax = curr_ax)
+        plot_model_prediction(plot_x, plot_y, sample_length, hop_length, context_length = context_length, prediction = plot_pred, decay = decay, ax = curr_ax)
         curr_ax.set_title(f"Sample {idx}")
         curr_ax.set_xlabel("")
         curr_ax.set_ylabel("")
@@ -182,6 +182,9 @@ def plot_batch(
 def plot_model(
     #Data
     sample_idx, dataset, model,
+
+    #Fügt Verlängerung für Pred ein
+    decay = librosa.time_to_samples(times = 0.3, sr = 16000),
     
     #Layout
     x_axis_plots = 4, subplot_width = 3, subplot_height = 1,
@@ -208,7 +211,7 @@ def plot_model(
     
     #Plots Batch with Model Results
     return plot_batch(
-        x_list, y_list, prediction = pred_list, sample_idx = sample_idx,
+        x_list, y_list, prediction = pred_list, decay = decay, sample_idx = sample_idx,
         sample_length = dataset.sample_length, hop_length = dataset.hop_length, context_length = dataset.context_length,
         x_axis_plots=x_axis_plots, subplot_width=subplot_width, subplot_height=subplot_height
     )
