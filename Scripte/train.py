@@ -33,13 +33,19 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
 
         #Logging
         logger=TensorBoardLogger("lightning_logs", name=name ),
-        log_every_n_steps  = 100,
-        val_check_interval = 1000,
-        limit_val_batches  = limit_val_batches,
-        precision          = "16-mixed",
-        gradient_clip_val  = 0.7
+        log_every_n_steps   = 100,
+        val_check_interval  = 1000,
+        limit_val_batches   = limit_val_batches,
+        precision           = "16-mixed",
+        gradient_clip_val   = 0.7,
+
+        #Checkpoints
+        every_n_train_steps = 5000,
+        every_n_epochs      = 1,
+        save_on_train_epoch_end = True
         
     )
+
     trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_val)
 
 def test_model(model):
