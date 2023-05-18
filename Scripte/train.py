@@ -4,6 +4,7 @@ import torchmetrics
 import tqdm
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.callbacks import ModelCheckpoint
 
 from data.data import *
 import models
@@ -40,9 +41,14 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
         gradient_clip_val   = 0.7,
 
         #Checkpoints
-        every_n_train_steps = 5000,
-        every_n_epochs      = 1,
-        save_on_train_epoch_end = True
+        callbacks=[
+            ModelCheckpoint(
+                save_last               = True,
+                every_n_train_steps     = 5000,
+                #every_n_epochs          = 1,
+                save_on_train_epoch_end = True
+            )
+        ]
         
     )
 
