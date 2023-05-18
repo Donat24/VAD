@@ -66,7 +66,7 @@ def plot_waveform_with_voice(waveform, voice, sr = None, x_in_sec = True, ax = N
     #Erzeugt neuen Plot
     if ax is None:
         fig, ax = _create_new_fig()
-
+    
     #Plot Tensor
     plot_waveform(waveform, sr = sr, x_in_sec = x_in_sec, ax = ax, **kwargs)
 
@@ -102,9 +102,9 @@ def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, s
     #Fixt context_length
     if context_length:
         waveform = waveform[context_length:]
-    
+
     #Y für Plot
-    if y.size(-1) < waveform.size(-1):
+    if y.size(-1) < waveform.size(-1) - hop_length:
         voice = y_to_full_length(y, sample_length, hop_length)
     else:
         voice = y
@@ -116,7 +116,7 @@ def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, s
     if prediction != None:
 
         #Pred für Plot
-        if prediction.size(-1) < waveform.size(-1):
+        if prediction.size(-1) < waveform.size(-1) - hop_length:
             prediction = y_to_full_length(prediction, sample_length, hop_length)
 
         #Erstellt Parts

@@ -43,10 +43,11 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
         #Checkpoints
         callbacks=[
             ModelCheckpoint(
+                save_top_k              = 10,
                 save_last               = True,
                 every_n_train_steps     = 5000,
                 #every_n_epochs          = 1,
-                save_on_train_epoch_end = True
+                save_on_train_epoch_end = True,
             )
         ]
         
