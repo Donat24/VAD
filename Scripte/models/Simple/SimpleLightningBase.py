@@ -60,9 +60,11 @@ class SimpleLightningBase(pl.LightningModule):
             #Metrics
             loss    = self.loss_fn(output, y)
             acc     = self.accuracy(output, y)
-        
-            self.log("test_loss", loss)
-            self.log("test_acc",  acc )
+
+            #log
+            if hasattr(self, "trainer"):
+                self.log("test_loss", loss)
+                self.log("test_acc",  acc )
 
             return { "loss" : loss, "acc" : acc }
     
