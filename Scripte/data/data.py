@@ -72,4 +72,4 @@ def costume_collate_fn(batch):
 #Dataloader für Training
 dataloader_train = DataLoader( dataset_train, batch_size=4, shuffle=True,  collate_fn=costume_collate_fn, pin_memory=False, num_workers=0 )
 dataloader_val   = DataLoader( dataset_val,   batch_size=4, shuffle=False, collate_fn=costume_collate_fn, pin_memory=False, num_workers=0 )
-dataloader_test  = DataLoader( dataset_test,  batch_size=1, shuffle=False, collate_fn=costume_collate_fn, pin_memory=False, num_workers=0 )
+#dataloader_test  = DataLoader( dataset_test,  batch_size=1, shuffle=False, collate_fn=costume_collate_fn, pin_memory=False, num_workers=0 )
