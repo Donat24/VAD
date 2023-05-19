@@ -69,7 +69,7 @@ class SimpleLightningBase(pl.LightningModule):
             acc     = self.accuracy(output, y)
 
             #log
-            if hasattr(self, "trainer"):
+            if self._trainer is not None:
                 self.log("test_loss", loss)
                 self.log("test_acc",  acc )
 
