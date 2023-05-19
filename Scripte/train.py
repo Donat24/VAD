@@ -74,6 +74,11 @@ def test_model(model):
         #Train-Step
         batch_result = model.test_step(batch)
         
+        #Tensor -> item
+        for key, value in batch_result.items():
+            if torch.is_tensor(value):
+                batch_result[key] = value.item()
+
         #IDx
         if "idx" not in batch_result:
             batch_result["idx"] = idx
