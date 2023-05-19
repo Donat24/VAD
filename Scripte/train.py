@@ -69,7 +69,7 @@ def test_model(model):
 
         #cuda
         if "cuda" in str(model.device):
-            batch.to(device=model.device)
+            batch = tuple([tensor.to(device = model.device) for tensor in batch])
         
         #Train-Step
         batch_result = model.test_step(batch)
