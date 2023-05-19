@@ -18,9 +18,16 @@ class SimpleLightningBase(pl.LightningModule):
         self.loss_fn         = F.binary_cross_entropy_with_logits
         self.accuracy        = metric.BinaryAccuracy()
     
-    #Shaped Tensor der Form BATCH TIMESERIES SAMPLE zu N SAMPLE Für X und Y
+    #Shaped Tensor
     def shape_data(self, x, y):
-        return x.flatten(start_dim=0, end_dim=1), y.flatten()
+        
+        #BATCH TIMESERIES SAMPLE
+        if len(x.shape) > 2:
+            return x.flatten(start_dim=0, end_dim=1), y.flatten()
+        
+        #BATCH SAMPLE
+        else:
+            return x, y
 
     def training_step(self, batch, batch_idx):
         
