@@ -26,7 +26,7 @@ class BinaryAccuracy(nn.Module):
             pred = pred - self.treshold
 
         #Heavyside sorgt für 0 oder 1
-        pred = torch.heaviside(pred,values=torch.tensor(1))
+        pred = torch.heaviside(pred,values=torch.tensor(1,dtype= pred.dtype))
         
         #Return
         return (pred == y).sum() / y.size(0)
