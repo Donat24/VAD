@@ -66,6 +66,10 @@ def test_model(model):
 
     #Iter Dataset
     for idx, batch in enumerate(dataset_test):
+
+        #cuda
+        if "cuda" in str(model.device):
+            batch.to(device=model.device)
         
         #Train-Step
         batch_result = model.test_step(batch)
