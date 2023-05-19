@@ -82,7 +82,7 @@ def test_model(model):
         result.append(batch_result)
 
     #Sort
-    result.sort( key=lambda item: item["test_acc"])
+    result.sort( key=lambda item: item["acc"])
 
     #Return
     return result
