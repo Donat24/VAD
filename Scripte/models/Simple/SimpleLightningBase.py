@@ -64,7 +64,7 @@ class SimpleLightningBase(pl.LightningModule):
             self.log("test_loss", loss)
             self.log("test_acc",  acc )
 
-            return { "test_loss" : loss, "test_acc" : acc }
+            return { "loss" : loss, "acc" : acc }
     
     def validation_step(self, batch):
         
@@ -83,7 +83,7 @@ class SimpleLightningBase(pl.LightningModule):
             self.log("val_loss", loss)
             self.log("val_acc",  acc )
             
-            return { "val_loss" : loss, "val_acc" : acc }
+            return { "loss" : loss, "acc" : acc }
 
     def configure_optimizers(self):        
         
