@@ -58,18 +58,27 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
 def test_model(model):
 
     #Eval
-    model.eval()
+    if model.training:
+        model.eval()
 
-    #Test Result
-    model.clear_test_result()
+    #Result
+    result = []
 
-    #pytorch Lighning
-    trainer = pl.Trainer()
-    trainer.test(model, dataloader_test)
+    #Iter Dataset
+    for idx, batch in enumerate(dataset_test):
+        
+        #Train-Step
+        batch_result = model.test_step(batch)
+        
+        #IDx
+        if "idx" not in batch_result:
+            batch_result["idx"] = idx
+        
+        #Append
+        result.append(batch_result)
 
-    #Test Result
-    result = model.get_test_result()
-    result.sort( key=lambda item: item["acc"])
+    #Sort
+    result.sort( key=lambda item: item["test_acc"])
 
     #Return
     return result

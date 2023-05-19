@@ -17,9 +17,6 @@ class SimpleLightningBase(pl.LightningModule):
         #Metriken
         self.loss_fn         = F.binary_cross_entropy_with_logits
         self.accuracy        = metric.BinaryAccuracy()
-
-        #Für Test per Batch
-        self.clear_test_result()
     
     #Shaped Tensor der Form BATCH TIMESERIES SAMPLE zu N SAMPLE Für X und Y
     def shape_data(self, x, y):
@@ -36,15 +33,7 @@ class SimpleLightningBase(pl.LightningModule):
         
         self.log("train_loss", loss)
         return loss
-
-    #Für Test
-    def clear_test_result(self):
-        self.test_results = []
-    
-    #Returned Result
-    def get_test_result(self):
-        return self.test_results
-    
+        
     #Erzeugt Tensor der wie Y aussieht
     def forward_whole_file(self,x):
         output  = self(x)
@@ -58,7 +47,7 @@ class SimpleLightningBase(pl.LightningModule):
         #Return
         return output
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch):
         
         with torch.no_grad():
             
@@ -68,27 +57,33 @@ class SimpleLightningBase(pl.LightningModule):
             #Forward
             output  = self.forward_whole_file(x)
             
-            #Accuracy
+            #Metrics
+            loss    = self.loss_fn(output, y)
             acc     = self.accuracy(output, y)
-            self.log("test_acc",  acc)
-            self.test_results.append({"batch_idx" : batch_idx, "acc" : acc.item()})
+        
+            self.log("test_loss", loss)
+            self.log("test_acc",  acc )
 
-            return acc
+            return { "test_loss" : loss, "test_acc" : acc }
     
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch):
         
         with torch.no_grad():
             
             x, y,   = batch
             x, y    = self.shape_data(x, y)
             
+            #Forward
             output  = self(x)
+
+            #Metrics
             loss    = self.loss_fn(output, y)
             acc     = self.accuracy(output, y)
 
             self.log("val_loss", loss)
             self.log("val_acc",  acc )
-            return loss
+            
+            return { "val_loss" : loss, "val_acc" : acc }
 
     def configure_optimizers(self):        
         
