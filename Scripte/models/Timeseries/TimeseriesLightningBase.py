@@ -5,6 +5,8 @@ import torchmetrics
 import lightning.pytorch as pl
 from lion_pytorch import Lion
 
+import util.metric as metric
+
 #Mit Timeseries
 class TimeseriesLightningBase(pl.LightningModule):
     def __init__(self) -> None:
@@ -13,7 +15,7 @@ class TimeseriesLightningBase(pl.LightningModule):
 
         #Metriken
         self.loss_fn  = F.binary_cross_entropy_with_logits
-        self.accuracy = torchmetrics.classification.BinaryAccuracy()
+        self.accuracy = metric.BinaryAccuracy()
 
     def training_step(self, batch, batch_idx):
 
@@ -50,7 +52,7 @@ class TimeseriesLightningBase(pl.LightningModule):
                 output[...,ts] = self(curr_x)
             
             loss    = self.loss_fn(output, y)
-            acc     = self.accuracy(torch.sigmoid(output), y)
+            acc     = self.accuracy(output, y)
 
             self.log("test_loss", loss)
             self.log("test_acc",  acc )
@@ -71,7 +73,7 @@ class TimeseriesLightningBase(pl.LightningModule):
                 output[...,ts] = self(curr_x)
             
             loss    = self.loss_fn(output, y)
-            acc     = self.accuracy(torch.sigmoid(output), y)
+            acc     = self.accuracy(output, y)
 
             self.log("val_loss", loss)
             self.log("val_acc",  acc )
