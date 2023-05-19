@@ -81,7 +81,7 @@ def plot_waveform_with_voice(waveform, voice, sr = None, x_in_sec = True, ax = N
         ax.axvspan( xmin = start, xmax = end, alpha = alpha_voice, color="green", label="Sprache")
     
 
-def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, sr = None, x_in_sec = True, prediction = None, decay = librosa.time_to_samples(times = 0.3, sr = 16000), ax = None, **kwargs):
+def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, sr = None, x_in_sec = True, prediction = None, decay = librosa.time_to_samples(times = 0.1, sr = 16000), ax = None, **kwargs):
 
     #Fixt x_in_sec
     if sr is None:
@@ -132,7 +132,7 @@ def plot_model_prediction(x, y, sample_length, hop_length, context_length = 0, s
 
 def plot_batch(
         #Data
-        x, y, sample_length, hop_length, context_length = 0, prediction = None, decay = librosa.time_to_samples(times = 0.3, sr = 16000), sample_idx = None,
+        x, y, sample_length, hop_length, context_length = 0, prediction = None, decay = librosa.time_to_samples(times = 0.1, sr = 16000), sample_idx = None,
         
         #Layout
         x_axis_plots = 4, subplot_width = 3, subplot_height = 1,
@@ -184,7 +184,7 @@ def plot_model(
     sample_idx, dataset, model_predict_func,
 
     #Fügt Verlängerung für Pred ein
-    decay = librosa.time_to_samples(times = 0.3, sr = 16000),
+    decay = librosa.time_to_samples(times = 0.1, sr = 16000),
     
     #Layout
     x_axis_plots = 4, subplot_width = 3, subplot_height = 1,
