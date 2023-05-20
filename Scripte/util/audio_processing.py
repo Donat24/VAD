@@ -60,32 +60,24 @@ class AudioBuffer(nn.Module):
 
 #Modul welches FFT macht
 class FFT(nn.Module):
-    def __init__(self, window, window_trainable = False, low_treshold = -60) -> None:
+    def __init__(self, window, low_treshold = -60) -> None:
         
         #Init
         super().__init__()
 
-        #Parameter
-        if window_trainable:
-
-            window = nn.Parameter(window, requires_grad = window_trainable)
-            self.register_parameter("window", window)
-        
-        #Buffer
-        else:
-            self.register_buffer("window", window)
+        #Window
+        self.register_buffer("window", window)
         
         #Maximaler Negativ-Wert
-        low_treshold = torch.tensor(low_treshold,dtype=torch.float)
+        low_treshold = torch.tensor(low_treshold, dtype=torch.float)
         self.register_buffer("low_treshold", low_treshold)
 
     def forward(self, x, normalize=True):
 
         #Errechnet Spec
-        magnitude_spec         = torch.abs(torch.fft.rfft(self.window * x)).mul_(2) # Multiplikation mit 2 da negtiver Teil des Spektrums fehlt
-        magnitude_scaled_spec  = magnitude_spec.div_(torch.sum(self.window))        # Skaliert durch Summe von window
-        db_spec                = torch.log10_(magnitude_scaled_spec).mul_(20)       # Rechnet in dbFS um
-        db_spec[db_spec < self.low_treshold] = self.low_treshold                    # Minimum -> Treshhold
+        magnitude_spec         = torch.abs(torch.fft.rfft(self.window * x))                            # Multiplikation mit 2 da negtiver Teil des Spektrums fehlt
+        magnitude_scaled_spec  = rescale_fft_magnitude_with_window(magnitude_spec, window=self.window) # Skaliert durch Summe von window
+        db_spec                = amp_to_db(magnitude_scaled_spec, self.low_treshold)                   # Rechnet in dbFS um
         spec = db_spec
 
         #Normalisiert

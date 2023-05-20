@@ -3,8 +3,16 @@ import torch
 from torch.nn import functional as F
 
 #AMP to DB und umgekehrt
-def amp_to_db(tensor):
-    return tensor.log10() * 20
+def amp_to_db(tensor, low_treshold = None):
+    
+    #amp -> db
+    out = tensor.log10() * 20
+
+    #low_treshold 
+    if low_treshold is not None:
+        out[out < low_treshold] = low_treshold  
+
+    return out
 
 #DB to Amp
 def db_to_amp(tensor):
@@ -20,6 +28,15 @@ def rms(tensor):
 #Berechnet DB
 def db(tensor):
     return amp_to_db(rms(tensor))
+
+#Fixt Skalierung durch window
+def rescale_fft_magnitude_with_window(tensor, window_sum = None, window = None):
+    
+    #errechnet Summe
+    if window_sum is None:
+        window_sum = window.sum()
+    
+    return 2 * tensor / window_sum
 
 #Funtkion zum Normalisieren der Waveform
 def normalize_waveform_to_peak(waveform, peak = -0.1,):

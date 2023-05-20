@@ -4,6 +4,7 @@ import librosa
 import numpy as np
 import pandas as pd
 import math
+from nnAudio import features
 
 from .util import *
 
@@ -227,16 +228,18 @@ def plot_model(
     )
 
 
-def plot_spectorgram(waveform, sr, sample_length, hop_length):
+def plot_spectorgram(waveform, sr, sample_length, hop_length, low_treshold = -80):
     
+    #Cast -> Float
+    waveform = waveform.to(torch.float)
+
     #Werte
-    window    = np.hanning(sample_length)
-    stft      = librosa.stft(y= _get_np_array(waveform), n_fft=sample_length, hop_length=hop_length, window=window, center=False)
-    magnitude = np.abs(stft)
-    dbfs      = librosa.amplitude_to_db(2 * magnitude / sum(window), ref=1)
+    stft = features.STFT(n_fft = sample_length, hop_length = hop_length, sr = sr, output_format = "Magnitude")
+    data = amp_to_db(rescale_fft_magnitude_with_window(tensor = stft(waveform)[0], window = stft.window_mask), low_treshold)
 
     #Plot
-    spec = librosa.display.specshow(dbfs, y_axis='log', sr=sr, hop_length=hop_length, x_axis='time')
-    plt.colorbar(spec, format="%+2.f dB")
+    spec = librosa.display.specshow(data.numpy(), y_axis='log', sr=sr, hop_length=hop_length, x_axis='time')
 
+    #Rest
     plt.title("Spectogramm")
+    plt.colorbar(spec, format="%+2.f dB")

@@ -12,3 +12,4 @@ tqdm
 tensorboard
 lion-pytorch
 tqdm
+nnAudio
