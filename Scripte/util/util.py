@@ -49,7 +49,7 @@ def reverse_unfold(tensor, hop_length):
     all_other_frames = tensor[ : -1][..., : hop_length].flatten()
 
     #Verbindet Frames
-    return torch.concat([last_frame, all_other_frames])
+    return torch.concat([all_other_frames, last_frame])
 
 def y_to_full_length(tensor, sample_length, hop_length):
     
