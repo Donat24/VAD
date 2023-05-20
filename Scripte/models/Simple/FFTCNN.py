@@ -7,13 +7,13 @@ from .SimpleLightningBase import SimpleLightningBase
 from .DeepCNN import Block, DeepCNN
 
 class FFTCNN(SimpleLightningBase):
-    def __init__(self, first_kernel_size = 16, kernel_size = 16, mid_channels=32, last_channels=32, n_blocks = 1, dense_features = 32) -> None:
+    def __init__(self, fft_window = torch.hann_window(512), first_kernel_size = 16, kernel_size = 16, mid_channels=32, last_channels=32, n_blocks = 1, dense_features = 32) -> None:
 
         #Super
         super().__init__()
 
         #FFT
-        self.fft = FFT( window = torch.hann_window(512), window_trainable = False , low_treshold = -60)
+        self.fft = FFT( window = fft_window, window_trainable = False , low_treshold = -60)
 
         #First Layer
         self.first_cnn_layer = Block( in_channels = 1, out_channels = mid_channels, kernel_size = first_kernel_size, stride = 1, bn = False)
