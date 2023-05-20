@@ -54,7 +54,7 @@ class SimpleLightningBase(pl.LightningModule):
         #Return
         return output
 
-    def test_step(self, batch):
+    def test_step(self, batch, batch_idx = None):
         
         with torch.no_grad():
             
@@ -75,7 +75,7 @@ class SimpleLightningBase(pl.LightningModule):
 
             return { "loss" : loss, "acc" : acc }
     
-    def validation_step(self, batch):
+    def validation_step(self, batch, batch_idx = None):
         
         with torch.no_grad():
             
