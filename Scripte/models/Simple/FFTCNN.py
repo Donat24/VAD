@@ -3,19 +3,17 @@ from torch import nn
 from typing import Any
 
 from util.audio_processing import *
-from models.Simple.DeepCNN import Block, DeepCNN
-from .TimeseriesLightningBase import TimeseriesLightningBase
+from .SimpleLightningBase import SimpleLightningBase
+from .DeepCNN import Block, DeepCNN
 
-class STFTPuffered(TimeseriesLightningBase):
+class FFTCNN(SimpleLightningBase):
     def __init__(self, first_kernel_size = 16, kernel_size = 16, mid_channels=32, last_channels=32, n_blocks = 1, dense_features = 32) -> None:
 
         #Super
         super().__init__()
 
-        self.audio_buffer = AudioBuffer(size = 8192, shift = 256)
-
-        #STFT
-        self.stft = STFT( window = torch.hann_window(8192), window_trainable = False , low_treshold = -60)
+        #FFT
+        self.fft = FFT( window = torch.hann_window(512), window_trainable = False , low_treshold = -60)
 
         #First Layer
         self.first_cnn_layer = Block( in_channels = 1, out_channels = mid_channels, kernel_size = first_kernel_size, stride = 1, bn = False)
@@ -37,19 +35,13 @@ class STFTPuffered(TimeseriesLightningBase):
         self.bn1 = nn.BatchNorm1d(last_channels)
         self.fc2 = nn.Linear(dense_features, 1)
     
-    def reset(self):
-        self.audio_buffer.reset()
-    
     def forward(self, x):
 
         #Out
         out = x
 
-        #Audio Buffer
-        out = self.audio_buffer(out)
-
-        #STFT
-        out = self.stft(out)
+        #FFT
+        out = self.fft(out)
 
         #Reshape
         out = out.unsqueeze(1)
@@ -74,7 +66,7 @@ class STFTPuffered(TimeseriesLightningBase):
         out = self.bn1(out)
         
         out = self.fc2(out)
-        out = torch.sigmoid(out)
+        #out = torch.sigmoid(out)
         out = out.squeeze()
         
         return out

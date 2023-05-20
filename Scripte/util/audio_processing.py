@@ -58,8 +58,8 @@ class AudioBuffer(nn.Module):
         #Return
         return self.buffer
 
-#Modul welches STFT macht
-class STFT(nn.Module):
+#Modul welches FFT macht
+class FFT(nn.Module):
     def __init__(self, window, window_trainable = False, low_treshold = -60) -> None:
         
         #Init
