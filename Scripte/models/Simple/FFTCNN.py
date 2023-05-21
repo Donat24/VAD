@@ -13,7 +13,7 @@ class FFTCNN(SimpleLightningBase):
         super().__init__()
 
         #FFT
-        self.fft = FFT( window = fft_window, window_trainable = False , low_treshold = -60)
+        self.fft = FFT( window = fft_window, low_treshold = -100)
 
         #First Layer
         self.first_cnn_layer = Block( in_channels = 1, out_channels = mid_channels, kernel_size = first_kernel_size, stride = 1, bn = False)
