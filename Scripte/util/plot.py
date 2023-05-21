@@ -147,6 +147,9 @@ def plot_batch(
         #Layout
         x_axis_plots = 4, subplot_width = 3, subplot_height = 1,
         
+        #Plottet welches Bild gerade erstellt wird
+        log_curr_img = False,
+        
         #Other Args
         **kwargs
     ):
@@ -172,7 +175,10 @@ def plot_batch(
         curr_x  = counter % x_axis_plots
         curr_y  = counter // x_axis_plots
         
-        print(f"Erstelle Plot: IDX : '{idx}' | X : '{curr_x}' | Y : '{curr_y}'")
+        #Für größere Plots
+        if log_curr_img:
+            print(f"Erstelle Plot: IDX : '{idx}' | X : '{curr_x}' | Y : '{curr_y}'")
+        
         curr_ax = plt.subplot2grid((y_axis_plots, x_axis_plots), (curr_y, curr_x), fig=fig)
 
         #Params for Plot
