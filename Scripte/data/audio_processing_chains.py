@@ -1,8 +1,15 @@
 from torch import nn
 from util.audio_processing import *
 
+class AudioProcessing(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+    
+    def forward(self, x, sr = None, info = None):
+        raise Exception("not implented")
+
 #Train
-class AudioProcessingTrain(nn.Module):
+class AudioProcessingTrain(AudioProcessing):
     
     def __init__(self) -> None:
         
@@ -18,7 +25,7 @@ class AudioProcessingTrain(nn.Module):
         return out
 
 #Test
-class AudioProcessingTest(nn.Module):
+class AudioProcessingTest(AudioProcessing):
     
     def __init__(self) -> None:
         

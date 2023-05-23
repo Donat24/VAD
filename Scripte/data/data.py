@@ -17,11 +17,20 @@ SAMPLE_LENGTH  = 512
 HOP_LENGTH     = 256
 CONTEXT_LENGTH = 0 #2048 - SAMPLE_LENGTH
 TRUTH_TRESHOLD = 64
-FIXED_LENGTH   = librosa.time_to_samples(times=7, sr=SAMPLE_RATE) # Trainingsdatensätze bekommen fixe Länge
 
 #Lädt CSVs
 train_csv = pd.read_csv(TRAIN_CSV_PATH)
 test_csv  = pd.read_csv(TEST_CSV_PATH)
+val_csv   = pd.read_csv(VAL_CSV_PATH)
+
+#FileDataset
+filedataset_train = TarDataset(TRAIN_TAR_PATH, data=train_csv, target_samplerate=SAMPLE_RATE)
+filedataset_test  = TarDataset(TEST_TAR_PATH,  data=test_csv,  target_samplerate=SAMPLE_RATE)
+
+#AudioProcessingChain
+audio_processing_chain_tain = AudioProcessingTrain()
+audio_processing_chain_val  = AudioProcessingTest()
+audio_processing_chain_test = AudioProcessingTest()
 
 #Erstellt Y-Tensor
 def get_y(tensor, sr ,info):
@@ -29,28 +38,19 @@ def get_y(tensor, sr ,info):
     out[info["start"] : info["end"] + 1] = 1
     return out
 
-#FileDataset
-filedataset_train              = TarDataset(TRAIN_TAR_PATH, data=train_csv, target_samplerate=SAMPLE_RATE)
-filedataset_test               = TarDataset(TEST_TAR_PATH,  data=test_csv,  target_samplerate=SAMPLE_RATE)
-#filedataset_train_fixed_length = TarDataset(TRAIN_TAR_PATH, data=train_csv, target_samplerate=SAMPLE_RATE, fixed_length = FIXED_LENGTH)
-#filedataset_test_fixed_length  = TarDataset(TEST_TAR_PATH,  data=test_csv,  target_samplerate=SAMPLE_RATE)
-
-#AudioProcessingChain
-audio_processing_chain_tain = AudioProcessingTrain()
-audio_processing_chain_test = AudioProcessingTest()
-
 #SpeakDataset
-speakdataset_train_unchunked              = SpeakDataset(filedataset_train,              audio_processing_chain = audio_processing_chain_tain, get_y = get_y)
-speakdataset_test_unchunked               = SpeakDataset(filedataset_test,               audio_processing_chain = audio_processing_chain_test, get_y = get_y)
-speakdataset_test_unchunked_normalized    = SpeakDataset(filedataset_test,               audio_processing_chain = None, get_y = get_y)
-#speakdataset_train_unchunked_fixed_length = SpeakDataset(filedataset_train_fixed_length, audio_processing_chain = audio_processing_chain, get_y = get_y)
-#speakdataset_test_unchunked_fixed_length  = SpeakDataset(filedataset_test_fixed_length,  audio_processing_chain = audio_processing_chain, get_y = get_y)
+speakdataset_train_unchunked = SpeakDataset(filedataset_train, audio_processing_chain = audio_processing_chain_tain, get_y = get_y)
+speakdataset_test_unchunked  = SpeakDataset(filedataset_test,  audio_processing_chain = audio_processing_chain_test, get_y = get_y)
+speakdataset_val_unchunked   = SpeakDataset(filedataset_train, audio_processing_chain = audio_processing_chain_test, get_y = get_y)
 
 #ChunkedDataset
 dataset_train           = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
-dataset_val             = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+dataset_val             = ChunkedDataset(speakdataset_val_unchunked,   SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
 dataset_test            = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
-dataset_test_normalized = ChunkedDataset(speakdataset_test_unchunked_normalized,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
+
+#Normalized Audio
+speakdataset_test_unchunked_normalized = SpeakDataset(filedataset_test, audio_processing_chain = None, get_y = get_y)
+dataset_test_normalized                = ChunkedDataset(speakdataset_test_unchunked_normalized,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
 
 #Costume Collate
 def costume_collate_fn(batch):
