@@ -152,7 +152,7 @@ class SpeakDataset(Dataset):
 
         #Audio Processing
         if self.audio_processing_chain is not None:
-            x = self.audio_processing_chain(x)
+            x = self.audio_processing_chain(x, sr, info)
         
         return x, y
 

@@ -5,7 +5,8 @@ import torchmetrics
 import lightning.pytorch as pl
 from lion_pytorch import Lion
 
-from data.data import HOP_LENGTH
+from data.data import SAMPLE_LENGTH, HOP_LENGTH
+from util.util import *
 import util.metric as metric
 
 #Für einfache Netzte ohne Puffer
@@ -43,16 +44,7 @@ class SimpleLightningBase(pl.LightningModule):
         
     #Erzeugt Tensor der wie Y aussieht
     def forward_whole_file(self,x):
-        output  = self(x)
-
-        #Transform Shape
-        transformed = output.unsqueeze(-1).repeat( 1, x.size(-1) )
-        last        = transformed[-1]
-        all_other   = transformed[ : -1][..., : HOP_LENGTH].flatten()
-        output      = torch.concat([all_other, last])
-
-        #Return
-        return output
+        return y_to_full_length(self(x), SAMPLE_LENGTH, HOP_LENGTH)
 
     def test_step(self, batch, batch_idx = None):
         
@@ -62,7 +54,8 @@ class SimpleLightningBase(pl.LightningModule):
             x, y    = self.shape_data(x, y)
             
             #Forward
-            output  = self.forward_whole_file(x)
+            output = self.forward_whole_file(x)
+            output = output[..., : y.size(-1)]
             
             #Metrics
             loss    = self.loss_fn(output, y)
