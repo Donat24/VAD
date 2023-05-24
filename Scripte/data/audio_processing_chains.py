@@ -43,6 +43,7 @@ class AudioProcessingTest(AudioProcessing):
         
         #Fx
         self.gain = Gain()
+        self.normalizer = normalizer
     
     def forward(self, x, sr = None, info = None):
         
