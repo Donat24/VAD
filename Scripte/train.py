@@ -7,8 +7,9 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
 from fvcore.nn import FlopCountAnalysis
 
-from data.data import *
 import models
+from data.data import *
+from util.util import *
 
 #Torch Matmul
 torch.set_float32_matmul_precision('high')
@@ -102,12 +103,20 @@ def get_model_flops(model, input = None, duration=10, sample_length = SAMPLE_LEN
         duration = librosa.time_to_samples(times=duration, sr=SAMPLE_RATE)
         input = torch.zeros( size = (duration,))
     
+    else:
+        #Checkt Shape
+        if len(input.shape) > 1:
+            raise Exception("BAD TENSOR SHAPE")
+    
     #Überfluss damit das letzte Frame ausgewertet wird
     overflow = (input.size(-1) - sample_length) % hop_length
     input = torch.concat( [ input, torch.zeros( size=(overflow,) ) ] )
     
     #Context Länge
     input = torch.concat( [ torch.zeros( size=(context_length,) ), input ] )
+
+    #Samples
+    input = get_samples(input, sample_length=sample_length, hop_length=hop_length)
     
     #Kalkuliert Flops
     flops = FlopCountAnalysis(model, input)
