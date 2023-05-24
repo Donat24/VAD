@@ -93,7 +93,7 @@ def test_model(model, normalized_dataset = False):
     #Return
     return result
 
-def get_flops(model, input = None, duration=10, sample_length = SAMPLE_LENGTH, hop_length = HOP_LENGTH, context_length = CONTEXT_LENGTH):
+def get_model_flops(model, input = None, duration=10, sample_length = SAMPLE_LENGTH, hop_length = HOP_LENGTH, context_length = CONTEXT_LENGTH):
     
     #Erstellt Frame aus 0en
     if input is None:
@@ -103,7 +103,7 @@ def get_flops(model, input = None, duration=10, sample_length = SAMPLE_LENGTH, h
         input = torch.zeros( size = (duration,))
     
     #Überfluss damit das letzte Frame ausgewertet wird
-    overflow = (duration.size(-1) - sample_length) % hop_length
+    overflow = (input.size(-1) - sample_length) % hop_length
     input = torch.concat( [ input, torch.zeros( size=(overflow,) ) ] )
     
     #Context Länge
