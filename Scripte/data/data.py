@@ -44,9 +44,9 @@ speakdataset_test_unchunked  = SpeakDataset(filedataset_test,  audio_processing_
 speakdataset_val_unchunked   = SpeakDataset(filedataset_train, audio_processing_chain = audio_processing_chain_test, get_y = get_y)
 
 #ChunkedDataset
-dataset_train           = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
-dataset_val             = ChunkedDataset(speakdataset_val_unchunked,   SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
-dataset_test            = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
+dataset_train = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+dataset_val   = ChunkedDataset(speakdataset_val_unchunked,   SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
+dataset_test  = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
 
 #Normalized Audio
 speakdataset_test_unchunked_normalized = SpeakDataset(filedataset_test, audio_processing_chain = None, get_y = get_y)
