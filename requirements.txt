@@ -13,3 +13,4 @@ tensorboard
 lion-pytorch
 tqdm
 nnAudio
+fvcore

@@ -5,6 +5,7 @@ import tqdm
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
+from fvcore.nn import FlopCountAnalysis
 
 from data.data import *
 import models
@@ -91,6 +92,26 @@ def test_model(model, normalized_dataset = False):
 
     #Return
     return result
+
+def get_flops(model, input = None, duration=10, sample_length = SAMPLE_LENGTH, hop_length = HOP_LENGTH, context_length = CONTEXT_LENGTH):
+    
+    #Erstellt Frame aus 0en
+    if input is None:
+
+        #duration to Samples
+        duration = librosa.time_to_samples(times=duration, sr=SAMPLE_RATE)
+        input = torch.zeros( size = (duration,))
+    
+    #Überfluss damit das letzte Frame ausgewertet wird
+    overflow = (duration.size(-1) - sample_length) % hop_length
+    input = torch.concat( [ input, torch.zeros( size=(overflow,) ) ] )
+    
+    #Context Länge
+    input = torch.concat( [ torch.zeros( size=(context_length,) ), input ] )
+    
+    #Kalkuliert Flops
+    flops = FlopCountAnalysis(model, input)
+    return flops
 
 def main():
 
