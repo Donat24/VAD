@@ -26,6 +26,7 @@ val_csv   = pd.read_csv(VAL_CSV_PATH)
 #FileDataset
 filedataset_train = TarDataset(TRAIN_TAR_PATH, data=train_csv, target_samplerate=SAMPLE_RATE)
 filedataset_test  = TarDataset(TEST_TAR_PATH,  data=test_csv,  target_samplerate=SAMPLE_RATE)
+filedataset_val   = TarDataset(TRAIN_TAR_PATH, data=val_csv,   target_samplerate=SAMPLE_RATE)
 
 #AudioProcessingChain
 audio_processing_chain_tain = AudioProcessingTrain()
@@ -41,7 +42,7 @@ def get_y(tensor, sr ,info):
 #SpeakDataset
 speakdataset_train_unchunked = SpeakDataset(filedataset_train, audio_processing_chain = audio_processing_chain_tain, get_y = get_y)
 speakdataset_test_unchunked  = SpeakDataset(filedataset_test,  audio_processing_chain = audio_processing_chain_test, get_y = get_y)
-speakdataset_val_unchunked   = SpeakDataset(filedataset_train, audio_processing_chain = audio_processing_chain_val,  get_y = get_y)
+speakdataset_val_unchunked   = SpeakDataset(filedataset_val,   audio_processing_chain = audio_processing_chain_val,  get_y = get_y)
 
 #ChunkedDataset
 dataset_train = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
