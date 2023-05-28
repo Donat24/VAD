@@ -28,9 +28,9 @@ filedataset_train = TarDataset(TRAIN_TAR_PATH, data=train_csv, target_samplerate
 filedataset_test  = TarDataset(TEST_TAR_PATH,  data=test_csv,  target_samplerate=SAMPLE_RATE)
 
 #AudioProcessingChain
-audio_processing_chain_tain = AudioProcessingTrain(normalizer = FeedForwardLoudnessControll( sample_rate = SAMPLE_RATE, hop_length = HOP_LENGTH ))
-audio_processing_chain_val  = AudioProcessingTest(normalizer  = FeedForwardLoudnessControll( sample_rate = SAMPLE_RATE, hop_length = HOP_LENGTH ))
-audio_processing_chain_test = AudioProcessingTest(normalizer  = FeedForwardLoudnessControll( sample_rate = SAMPLE_RATE, hop_length = HOP_LENGTH ))
+audio_processing_chain_tain = AudioProcessingTrain()
+audio_processing_chain_val  = AudioProcessingTest()
+audio_processing_chain_test = AudioProcessingTest()
 
 #Erstellt Y-Tensor
 def get_y(tensor, sr ,info):

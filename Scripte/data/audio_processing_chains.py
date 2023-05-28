@@ -11,14 +11,13 @@ class AudioProcessing(nn.Module):
 #Train
 class AudioProcessingTrain(AudioProcessing):
     
-    def __init__(self, normalizer = None) -> None:
+    def __init__(self) -> None:
         
         #Init
         super().__init__()
         
         #Fx
         self.random_gain = RandomGain()
-        self.normalizer = normalizer
     
     def forward(self, x, sr = None, info = None):
         
@@ -27,23 +26,18 @@ class AudioProcessingTrain(AudioProcessing):
         #Random Gain
         out = self.random_gain(x)
         
-        #Normalizer Forward
-        if self.normalizer is not None:
-            out = self.normalizer(out)
-        
         return out
 
 #Test
 class AudioProcessingTest(AudioProcessing):
     
-    def __init__(self, normalizer = None) -> None:
+    def __init__(self) -> None:
         
         #Init
         super().__init__()
         
         #Fx
         self.gain = Gain()
-        self.normalizer = normalizer
     
     def forward(self, x, sr = None, info = None):
         
@@ -51,9 +45,5 @@ class AudioProcessingTest(AudioProcessing):
         
         #Random Gain
         out = self.gain(x, gain = info["gain"])
-
-        #Normalizer Forward
-        if self.normalizer is not None:
-            out = self.normalizer(out)
         
         return out

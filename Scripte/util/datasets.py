@@ -130,7 +130,7 @@ class TarDataset(BaseDataset):
 
 #Returned Waveform, Y
 class SpeakDataset(Dataset):
-    def __init__(self, dataset, audio_processing_chain, get_y) -> None:
+    def __init__(self, dataset, audio_processing_chain, get_y, normalizer = None) -> None:
         super().__init__()
 
         #Parameter
@@ -154,11 +154,15 @@ class SpeakDataset(Dataset):
         if self.audio_processing_chain is not None:
             x = self.audio_processing_chain(x, sr, info)
         
+        #Normalizer
+        if self.normalizer is not None:
+            x = self.normalizer(x)
+        
         return x, y
 
 #Chunker
 class ChunkedDataset(Dataset):
-    def __init__(self, dataset, sample_length, hop_length, context_length = 0, fill_x_to_sample_length = True, fill_y_to_sample_length = True, chunk_y = True, y_truth_treshold:typing.Union[float, int] = 0) -> None:
+    def __init__(self, dataset, sample_length, hop_length, context_length = 0, fill_x_to_sample_length = True, fill_y_to_sample_length = True, chunk_y = True, y_truth_treshold:typing.Union[float, int] = 0, sample_processing_chain = None) -> None:
         super().__init__()
 
         #unchunked Dataset
@@ -175,6 +179,9 @@ class ChunkedDataset(Dataset):
 
         #Chunk Y
         self.chunk_y = chunk_y
+
+        #sample_processing_chain
+        self.sample_processing_chain = sample_processing_chain
 
         #Truth Treshold
         if isinstance(y_truth_treshold, float):
@@ -223,5 +230,9 @@ class ChunkedDataset(Dataset):
         if self.chunk_y:
             y = get_samples(y, self.sample_length, self.hop_length)
             y = y.sum(dim=-1).gt_(self.y_truth_treshold)
+        
+        #sample_processing_chain
+        if self.sample_processing_chain:
+            x = self.sample_processing_chain(x)
 
         return x, y

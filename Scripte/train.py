@@ -6,6 +6,7 @@ import lightning.pytorch as pl
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
 from fvcore.nn import FlopCountAnalysis
+from tqdm import tqdm
 
 import models
 from data.data import *
@@ -67,7 +68,7 @@ def test_model(model, normalized_dataset = False):
     result = []
 
     #Iter Dataset
-    for idx, batch in enumerate(dataset_test_normalized if normalized_dataset else dataset_test):
+    for idx, batch in tqdm(enumerate(dataset_test_normalized if normalized_dataset else dataset_test)):
 
         #cuda
         if "cuda" in str(model.device):
