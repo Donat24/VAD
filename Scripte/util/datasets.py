@@ -137,6 +137,7 @@ class SpeakDataset(Dataset):
         self.dataset                = dataset
         self.audio_processing_chain = audio_processing_chain
         self.get_y                  = get_y
+        self.normalizer             = normalizer
     
     def __len__(self):
             return len(self.dataset)
