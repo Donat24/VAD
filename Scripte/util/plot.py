@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import math
 from nnAudio import features
+import torchaudio
 
 from .util import *
 
@@ -234,7 +235,7 @@ def plot_model(
     )
 
 
-def plot_spectorgram(waveform, sr, sample_length, hop_length, low_treshold = -80):
+def plot_spectorgram(waveform, sr, sample_length, hop_length, low_treshold = -80, n_mels = None):
     
     #Cast -> Float
     waveform = waveform.to(torch.float)
@@ -243,8 +244,20 @@ def plot_spectorgram(waveform, sr, sample_length, hop_length, low_treshold = -80
     stft = features.STFT(n_fft = sample_length, hop_length = hop_length, sr = sr, output_format = "Magnitude")
     data = amp_to_db(rescale_fft_magnitude_with_window(tensor = stft(waveform)[0], window = stft.window_mask), low_treshold)
 
-    #Plot
-    spec = librosa.display.specshow(data.numpy(), y_axis='log', sr=sr, hop_length=hop_length, x_axis='time')
+    #Mel
+    if n_mels is None:
+
+        #Plot
+        spec = librosa.display.specshow(data.numpy(), y_axis='log', sr=sr, hop_length=hop_length, x_axis='time')
+    
+    else:
+
+        #Mel
+        transformer = torchaudio.transforms.MelScale(n_mels = n_mels, sample_rate = sr, n_stft = data.size(0), norm = "slaney")
+        data = transformer(data)
+
+        #Plot
+        spec = librosa.display.specshow(data.numpy(), y_axis='mel', sr=sr, hop_length=hop_length, x_axis='time')
 
     #Rest
     plt.title("Spectogramm")
