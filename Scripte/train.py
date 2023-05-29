@@ -117,7 +117,7 @@ def get_model_flops(model, input = None, duration=10, sample_length = SAMPLE_LEN
     input = torch.concat( [ torch.zeros( size=(context_length,) ), input ] )
 
     #Samples
-    input = get_samples(input, sample_length=sample_length, hop_length=hop_length)
+    input = get_samples(input, sample_length= sample_length + context_length, hop_length = hop_length)
     
     #Kalkuliert Flops
     flops = FlopCountAnalysis(model, input)
