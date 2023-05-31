@@ -17,7 +17,14 @@ for id in df[0].unique():
         yt = YouTube(url=f"https://www.youtube.com/watch?v={id}")
         stream = yt.streams.filter(only_audio=True).filter(abr="128kbps")[0]
         fieending = stream.mime_type.split("/")[-1]
-        stream.download(output_path = path, filename = f"{id}.{fieending}")
+        filename = f"{id}.{fieending}"
+
+        #Skip
+        if os.path.exists(os.path.join(path, filename)):
+            continue
+        
+        #Download
+        stream.download(output_path = path, filename = filename)
     
     except:
         print(f"Fehler bei ID: '{id}'")
