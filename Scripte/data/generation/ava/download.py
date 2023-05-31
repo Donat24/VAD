@@ -20,4 +20,4 @@ for id in df[0].unique():
         stream.download(output_path = path, filename = f"{id}.{fieending}")
     
     except:
-        print(f"Fehler bei ID{id}")
+        print(f"Fehler bei ID: '{id}'")
