@@ -27,3 +27,4 @@ def get_y_ava(tensor, sr ,info):
 #Filedataset
 filedataset_ava  = LocalFileDataset(root_dir=AVA_DIR_PATH, data=data_ava)
 speakdataset_ava = SpeakDataset(filedataset_ava, audio_processing_chain=None, get_y = get_y_ava)
+dataset_ava      = ChunkedDataset(speakdataset_ava,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
