@@ -3,7 +3,7 @@ import pandas as pd
 from pytube import YouTube
 
 #PARAMS
-path = r"D:\Masterarbeit\DATA GENERATION\AVA"
+path = r"/mnt/data/source_jonas/VAD/Scripte/data/samples/GENERIERUNG/AVA"
 
 #Erstellt Pfad
 if not os.path.exists(path):

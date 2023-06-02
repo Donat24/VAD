@@ -58,7 +58,7 @@ def train_model(model, max_epochs=1, max_steps = -1,limit_val_batches=1.0, accel
 
     trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_val)
 
-def test_model(model, normalized_dataset = False):
+def test_model(model, dataset = dataset_test):
 
     #Eval
     if model.training:
@@ -68,7 +68,7 @@ def test_model(model, normalized_dataset = False):
     result = []
 
     #Iter Dataset
-    for idx, batch in tqdm(enumerate(dataset_test_normalized if normalized_dataset else dataset_test)):
+    for idx, batch in tqdm(enumerate(dataset)):
 
         #cuda
         if "cuda" in str(model.device):

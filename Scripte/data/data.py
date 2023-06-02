@@ -49,10 +49,6 @@ dataset_train = ChunkedDataset(speakdataset_train_unchunked, SAMPLE_LENGTH, HOP_
 dataset_val   = ChunkedDataset(speakdataset_val_unchunked,   SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, y_truth_treshold = TRUTH_TRESHOLD)
 dataset_test  = ChunkedDataset(speakdataset_test_unchunked,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
 
-#Normalized Audio
-speakdataset_test_unchunked_normalized = SpeakDataset(filedataset_test, audio_processing_chain = None, get_y = get_y)
-dataset_test_normalized                = ChunkedDataset(speakdataset_test_unchunked_normalized,  SAMPLE_LENGTH, HOP_LENGTH, CONTEXT_LENGTH, chunk_y = False, fill_y_to_sample_length = False)
-
 #Costume Collate
 def costume_collate_fn(batch):
 
