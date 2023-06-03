@@ -94,7 +94,7 @@ class STFTCNN(SimpleLightningBase):
 
         #Flatten
         out = torch.nn.functional.avg_pool2d(out,out.shape[-2:])
-        out = out.squeeze()
+        out = out.squeeze(dim=(-2,-1))
 
         #Dense
         out = self.fc1(out)

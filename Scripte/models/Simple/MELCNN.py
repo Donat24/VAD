@@ -48,10 +48,10 @@ class MELCNN(SimpleLightningBase):
         out = self.fft(out)
 
         #MEL
-        out = self.mel_transformer( out.unsqueeze(-1) ).squeeze()
-
+        out = self.mel_transformer( out.unsqueeze(-1) ).squeeze(-1)
+        
         #Reshape
-        out = out.unsqueeze(1)
+        out = out.unsqueeze(-2)
 
         #First Layer
         out = self.first_cnn_layer(out)
@@ -65,7 +65,7 @@ class MELCNN(SimpleLightningBase):
 
         #Flatten
         out = torch.avg_pool1d(out, out.size(-1))
-        out = out.squeeze()
+        out = out.squeeze(dim=(-2, -1))
 
         #Dense
         out = self.fc1(out)
